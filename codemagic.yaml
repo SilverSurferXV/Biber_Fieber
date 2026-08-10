@@ -15,18 +15,13 @@ workflows:
       - name: Install pnpm
         script: |
           npm install -g pnpm --force
-          pnpm --version
-
-      - name: Install dependencies
-        script: |
           pnpm install --ignore-scripts=false
-          pnpm approve-builds || true
 
       - name: Build Web
         script: |
           pnpm run build
 
-      - name: Sync Capacitor iOS
+      - name: Sync Capacitor
         script: |
           npx cap sync ios
 
@@ -35,7 +30,7 @@ workflows:
           cd ios/App
           pod install --repo-update
 
-      - name: Set up code signing
+      - name: Apply provisioning profiles
         script: |
           xcode-project use-profiles
 
@@ -47,5 +42,7 @@ workflows:
 
     artifacts:
       - build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
-      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
+
+    publishing:
+      app_store_connect:
+        auth: integration
