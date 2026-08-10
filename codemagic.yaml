@@ -7,6 +7,10 @@ workflows:
       node: latest
       xcode: latest
 
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.silversurfer.biberfieber
+
     scripts:
       - name: Install pnpm
         script: |
@@ -15,7 +19,12 @@ workflows:
 
       - name: Install dependencies
         script: |
-          pnpm install
+          pnpm install --ignore-scripts=false
+          pnpm approve-builds || true
+
+      - name: Build Web
+        script: |
+          pnpm run build
 
       - name: Sync Capacitor iOS
         script: |
@@ -26,17 +35,17 @@ workflows:
           cd ios/App
           pod install --repo-update
 
-      - name: Build iOS project
+      - name: Set up code signing
         script: |
-          cd ios/App
-          xcodebuild \
-            -workspace App.xcworkspace \
-            -scheme App \
-            -configuration Release \
-            -sdk iphoneos \
-            CODE_SIGNING_ALLOWED=NO \
-            build
+          xcode-project use-profiles
+
+      - name: Build IPA
+        script: |
+          xcode-project build-ipa \
+            --workspace ios/App/App.xcworkspace \
+            --scheme App
 
     artifacts:
-      - ios/App/build/**/*.app
-      - ~/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
