@@ -15,9 +15,13 @@ workflows:
       - name: Install pnpm
         script: |
           npm install -g pnpm --force
+          pnpm --version
+
+      - name: Install dependencies
+        script: |
           pnpm install --ignore-scripts=false
 
-      - name: Build Web
+      - name: Build Web App
         script: |
           pnpm run build
 
@@ -30,7 +34,7 @@ workflows:
           cd ios/App
           pod install --repo-update
 
-      - name: Apply provisioning profiles
+      - name: Apply Code Signing
         script: |
           xcode-project use-profiles
 
@@ -42,7 +46,4 @@ workflows:
 
     artifacts:
       - build/ios/ipa/*.ipa
-
-    publishing:
-      app_store_connect:
-        auth: integration
+      - /tmp/xcodebuild_logs/*.log
