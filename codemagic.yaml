@@ -8,26 +8,27 @@ workflows:
       xcode: latest
 
     scripts:
+      - name: Install pnpm
+        script: |
+          npm install -g pnpm --force
+          pnpm --version
+
       - name: Install dependencies
         script: |
-          cd Biber_Fieber
-          corepack enable
-          yarn --version
-          yarn install
+          pnpm install
 
       - name: Sync Capacitor iOS
         script: |
-          cd Biber_Fieber
           npx cap sync ios
 
       - name: Install CocoaPods
         script: |
-          cd Biber_Fieber/ios/App
+          cd ios/App
           pod install --repo-update
 
       - name: Build iOS project
         script: |
-          cd Biber_Fieber/ios/App
+          cd ios/App
           xcodebuild \
             -workspace App.xcworkspace \
             -scheme App \
@@ -37,5 +38,5 @@ workflows:
             build
 
     artifacts:
-      - Biber_Fieber/ios/App/build/**/*.app
+      - ios/App/build/**/*.app
       - ~/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
