@@ -1,0 +1,231 @@
+.viewContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  animation: fadeIn var(--animation-duration-normal) ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.balanceBox {
+  background-color: var(--background);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-8);
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--animation-duration-fast) ease, box-shadow var(--animation-duration-fast) ease;
+}
+
+.balanceBoxClickable {
+  cursor: pointer;
+}
+
+.balanceBoxClickable:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.hintText {
+  font-size: 0.875rem;
+  color: #40e0d0;
+  margin-top: var(--spacing-2);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius-full);
+  padding: var(--spacing-1) var(--spacing-4);
+  display: inline-block;
+}
+
+.historySection {
+  background-color: var(--surface);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  animation: fadeIn var(--animation-duration-normal) ease;
+}
+
+.historyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.historyHeader h4 {
+  margin: 0;
+}
+
+.closeButton {
+  background: transparent;
+  border: none;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  font-size: 0.875rem;
+  text-decoration: underline;
+  padding: var(--spacing-2);
+}
+
+.closeButton:hover {
+  color: var(--foreground);
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: var(--spacing-2);
+}
+
+.historyCard {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.historyCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.historyAmount {
+  font-weight: 700;
+  font-family: var(--font-family-monospace);
+}
+
+.amountPositive {
+  color: var(--success);
+}
+
+.amountNegative {
+  color: var(--error);
+}
+
+.historyNote {
+  font-size: 0.875rem;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.historyDate {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.emptyHistory {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  text-align: center;
+  padding: var(--spacing-4);
+}
+
+.skeletonRow {
+  width: 100%;
+  height: 1.5rem;
+}
+
+.skeletonRowShort {
+  width: 60%;
+  height: 1rem;
+}
+
+.pointsHuge {
+  font-family: var(--font-family-monospace);
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+  margin: var(--spacing-4) 0;
+  background: var(--gradient-sunset);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.topupGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--spacing-4);
+}
+
+@media (min-width: 992px) {
+  .topupGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .balanceBox {
+    padding: var(--spacing-4);
+  }
+  .pointsHuge {
+    font-size: 2.5rem;
+  }
+  .topupGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.topupCard {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--spacing-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: transform var(--animation-duration-fast) ease, border-color var(--animation-duration-fast) ease;
+}
+
+.topupCard:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary);
+}
+
+.topupAmount {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: var(--spacing-2);
+}
+
+@media (max-width: 767px) {
+  .topupAmount {
+    font-size: 1.5rem;
+  }
+}
+
+.bonusBadge {
+  margin-bottom: var(--spacing-2);
+}
+
+.noBonus {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin-bottom: var(--spacing-2);
+  height: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.receiveText {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin-bottom: var(--spacing-4);
+}
+
+.topupAction {
+  width: 100%;
+  margin-top: auto;
+}

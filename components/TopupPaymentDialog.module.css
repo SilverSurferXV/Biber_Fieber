@@ -1,0 +1,63 @@
+.methodGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+}
+
+.methodCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--spacing-4);
+  color: var(--foreground);
+  cursor: pointer;
+  transition: all var(--animation-duration-fast) ease;
+}
+
+.methodCard:hover {
+  border-color: var(--primary);
+  background-color: color-mix(in srgb, var(--primary) 10%, var(--card));
+}
+
+.methodCard:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.methodIcon {
+  color: var(--primary);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-4);
+}
+
+.paypalContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+  min-height: 200px;
+}
+
+.paypalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-2);
+}

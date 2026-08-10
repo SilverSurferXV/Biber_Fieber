@@ -1,0 +1,275 @@
+.viewContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  animation: fadeIn var(--animation-duration-normal) ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.emptyState {
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+
+.bibercodeBox {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .bibercodeBox {
+    flex-direction: row;
+  }
+}
+
+.biberVisual {
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-8);
+  flex: 1;
+}
+
+.biberImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: var(--spacing-4);
+}
+
+.biberContent {
+  padding: var(--spacing-8);
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.codeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  background-color: var(--surface);
+  padding: var(--spacing-3);
+  border-radius: var(--radius);
+  border: 1px dashed var(--primary);
+}
+
+.codeDisplay {
+  font-family: var(--font-family-monospace);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  flex: 1;
+  letter-spacing: 2px;
+}
+
+.linkRow {
+  margin-top: var(--spacing-4);
+  padding-top: var(--spacing-4);
+  border-top: 1px solid var(--border);
+}
+
+.urlBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--surface);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  margin-top: var(--spacing-2);
+}
+
+@media (max-width: 767px) {
+  .biberVisual {
+    padding: var(--spacing-4);
+    max-height: 180px;
+  }
+  .biberImg {
+    padding: var(--spacing-2);
+    max-height: 140px;
+  }
+  .biberContent {
+    padding: var(--spacing-4);
+  }
+  .codeRow {
+    flex-wrap: wrap;
+  }
+  .codeDisplay {
+    font-size: 1.1rem;
+  }
+  .urlBox {
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    word-break: break-all;
+  }
+}
+
+.applyCodeBox {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.applyCodeContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.applyCodeContent h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.applyRow {
+  display: flex;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-2);
+}
+
+@media (max-width: 767px) {
+  .applyRow {
+    flex-direction: column;
+  }
+}
+
+.successMessage {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--success);
+  background-color: color-mix(in srgb, var(--success) 10%, transparent);
+  padding: var(--spacing-3);
+  border-radius: var(--radius);
+  border: 1px solid color-mix(in srgb, var(--success) 30%, transparent);
+}
+
+.successIcon {
+  flex-shrink: 0;
+}
+
+.infoBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+  background-color: color-mix(in srgb, var(--info) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--info) 30%, transparent);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-4);
+}
+
+.infoText {
+  font-size: 0.875rem;
+  color: #ffffff;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.infoIcon {
+  color: var(--info);
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.friendsSection {
+  margin-top: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.friendsTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.friendsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.friendCard {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .friendCard {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.friendInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.friendName {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.friendAddress {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.friendDate {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.friendPoints {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  background-color: var(--surface);
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-sm);
+  min-width: 120px;
+}
+
+@media (max-width: 767px) {
+  .friendPoints {
+    align-items: flex-start;
+  }
+}
+
+.friendPointsValue {
+  font-family: var(--font-family-monospace);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.friendPointsLabel {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}

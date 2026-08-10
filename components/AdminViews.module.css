@@ -1,0 +1,124 @@
+.viewContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  animation: fadeIn var(--animation-duration-normal) ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h2 {
+  margin: 0;
+  color: var(--foreground);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background-color: var(--background);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.table th, .table td {
+  border-bottom: 1px solid var(--border);
+  padding: var(--spacing-3) var(--spacing-4);
+  text-align: left;
+  color: var(--foreground);
+}
+
+.table th {
+  background-color: var(--surface);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background-color: color-mix(in srgb, var(--primary) 5%, transparent);
+}
+
+.formGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding: var(--spacing-2) 0;
+}
+
+.formActions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--spacing-6);
+  padding-top: var(--spacing-4);
+  border-top: 1px solid var(--border);
+}
+
+.summaryCard {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  padding: var(--spacing-6);
+  border-radius: var(--radius-md);
+}
+
+.summaryCard p {
+  margin: var(--spacing-2) 0;
+  color: var(--foreground);
+}
+
+.sectionBox {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  padding: var(--spacing-6);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.sectionBox h3 {
+  margin: 0;
+  margin-bottom: var(--spacing-2);
+  color: var(--foreground);
+  font-size: 1.125rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--spacing-2);
+}
+
+@media (max-width: 430px) {
+  .table th, .table td {
+    padding: var(--spacing-2);
+    font-size: 0.75rem;
+  }
+
+  .header {
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+  }
+
+  .sectionBox {
+    padding: var(--spacing-3);
+  }
+
+  .formActions {
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+  }
+}

@@ -1,0 +1,6 @@
+@layer base {
+  .container {
+    /* Most styles are inherited from AdminViews.module.css */
+    /* Add specific supplier table customizations here if needed in the future */
+  }
+}

@@ -1,0 +1,55 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: var(--background);
+  padding: var(--spacing-4);
+}
+
+.card {
+  width: 100%;
+  max-width: 480px;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-8);
+  box-shadow: var(--shadow-lg);
+}
+
+.title {
+  font-family: var(--font-family-display);
+  font-size: 1.5rem;
+  color: var(--foreground);
+  margin-top: 0;
+  margin-bottom: var(--spacing-2);
+  text-align: center;
+}
+
+.description {
+  color: var(--muted-foreground);
+  font-size: 0.9375rem;
+  text-align: center;
+  margin-bottom: var(--spacing-6);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.fullWidthButton {
+  width: 100%;
+  margin-top: var(--spacing-4);
+}
+
+.errorMessage {
+  background-color: color-mix(in srgb, var(--error) 15%, transparent);
+  border: 1px solid var(--error);
+  color: var(--error);
+  padding: var(--spacing-3);
+  border-radius: var(--radius);
+  margin-bottom: var(--spacing-4);
+  font-size: 0.875rem;
+}

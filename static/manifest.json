@@ -1,0 +1,26 @@
+{
+  "name": "Biber Fieber Bio-Frühstück",
+  "short_name": "Biber Fieber",
+  "description": "Bio-Frühstück Lieferservice",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2e2e2e",
+  "theme_color": "#2e2e2e",
+  "icons": [
+    {
+      "src": "/_cdn/static/project-icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/_cdn/static/project-icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "orientation": "portrait",
+  "scope": "/",
+  "categories": [
+    "food"
+  ]
+}

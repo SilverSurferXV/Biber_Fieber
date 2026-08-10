@@ -1,0 +1,239 @@
+@layer base {
+  .container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-6);
+    width: 100%;
+    animation: fadeIn var(--animation-duration-normal) ease;
+  }
+
+  .headerCard {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-6);
+  }
+
+  .selectorWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+  
+  .selectorWrapper label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted-foreground);
+  }
+
+  .dialogBlockList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-4);
+  }
+
+  .dialogEmptyText {
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+  }
+
+  .emptyBlockText {
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+    margin-left: var(--spacing-2);
+    font-weight: normal;
+  }
+
+  .compensationForm {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--spacing-4);
+    padding-top: var(--spacing-4);
+    border-top: 1px solid var(--border);
+  }
+
+  .inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    min-width: 150px;
+  }
+
+  .inputGroup label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted-foreground);
+  }
+
+  .loadingContainer,
+  .emptyContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-12);
+    gap: var(--spacing-4);
+    background-color: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--border);
+    text-align: center;
+    color: var(--muted-foreground);
+  }
+
+  .sectionTitle {
+    font-family: var(--font-family-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--foreground);
+    margin-top: var(--spacing-4);
+    margin-bottom: var(--spacing-2);
+  }
+
+  .cardsGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-4);
+  }
+
+  @media (min-width: 768px) {
+    .cardsGrid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .card {
+    background-color: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    border: 1px solid var(--border);
+    text-align: left;
+  }
+
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .cardTitle {
+    font-family: var(--font-family-base);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--foreground);
+    margin: 0;
+  }
+
+  .cardSubtitle {
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+    margin-top: var(--spacing-1);
+  }
+
+  .cardIcon {
+    color: var(--muted-foreground);
+    flex-shrink: 0;
+  }
+
+  .cardBody {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+  }
+
+  .cardValue {
+    font-family: var(--font-family-display);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--foreground);
+    line-height: 1;
+  }
+
+  .cardSubvalue {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--primary);
+  }
+
+  .tableSection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+  }
+
+  .tableWrapper {
+    width: 100%;
+    overflow-x: auto;
+    background-color: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .table th,
+  .table td {
+    padding: var(--spacing-4) var(--spacing-6);
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .table th {
+    font-weight: 600;
+    color: var(--muted-foreground);
+    background-color: color-mix(in srgb, var(--surface) 80%, black);
+    white-space: nowrap;
+  }
+
+  .table td {
+    color: var(--foreground);
+  }
+
+  .table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .alignRight {
+    text-align: right !important;
+  }
+  
+  .alignCenter {
+    text-align: center !important;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @media (max-width: 430px) {
+    .compensationForm {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .headerCard {
+      padding: var(--spacing-3);
+    }
+    
+    .table th, .table td {
+      padding: var(--spacing-2);
+    }
+    
+    .cardValue {
+      font-size: 1.5rem;
+    }
+  }
+}

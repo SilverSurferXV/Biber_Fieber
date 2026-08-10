@@ -1,0 +1,157 @@
+.viewContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  animation: fadeIn var(--animation-duration-normal) ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.orderList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.orderCard {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--spacing-4);
+}
+
+.orderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--spacing-3);
+  margin-bottom: var(--spacing-3);
+}
+
+.orderMeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.deliveryDay {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+.orderNum {
+  font-weight: 600;
+  font-family: var(--font-family-monospace);
+  color: var(--foreground);
+  margin-right: var(--spacing-4);
+}
+
+.orderDate {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+.orderItems {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-4);
+}
+
+.orderItem {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  gap: var(--spacing-2);
+}
+
+.itemName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemPrice {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.orderFooter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  padding-top: var(--spacing-3);
+  gap: var(--spacing-2);
+}
+
+.orderActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  width: 100%;
+}
+
+.orderTotal {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-left: auto;
+  white-space: nowrap;
+  text-align: right;
+}
+
+@media (max-width: 480px) {
+  .orderTotal {
+    font-size: 0.75rem;
+  }
+}
+
+.emptyState {
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+
+.agbLink {
+  font-weight: bold;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.feeInfoBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-4);
+}
+
+.feeInfo {
+  color: var(--error);
+  font-weight: 700;
+}
+
+.noFeeInfo {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.pointsInfo {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.timeInfo {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.confirmCancelBtn {
+  background-color: var(--success);
+  border-color: var(--success);
+  color: var(--success-foreground);
+}

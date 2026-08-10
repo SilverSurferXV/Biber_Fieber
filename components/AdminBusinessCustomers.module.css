@@ -1,0 +1,160 @@
+.viewContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  animation: fadeIn var(--animation-duration-normal) ease;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.header h2 {
+  margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: var(--spacing-3);
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+.searchInput {
+  padding-left: calc(var(--spacing-3) + 1rem + var(--spacing-2));
+  min-width: 14rem;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background-color: var(--background);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.table th, .table td {
+  border-bottom: 1px solid var(--border);
+  padding: var(--spacing-3) var(--spacing-4);
+  text-align: left;
+  color: var(--foreground);
+}
+
+.table th {
+  background-color: var(--surface);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+.sortableHeader {
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--animation-duration-fast) ease, background-color var(--animation-duration-fast) ease;
+}
+
+.sortableHeader:hover {
+  background-color: color-mix(in srgb, var(--surface) 80%, var(--primary) 20%);
+  color: var(--foreground);
+}
+
+.table th.activeSort {
+  color: var(--primary);
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.sortIcon {
+  color: var(--muted-foreground);
+  opacity: 0.5;
+}
+
+.sortIconActive {
+  color: var(--primary);
+  opacity: 1;
+}
+
+.groupHeader td {
+  background-color: var(--surface);
+  font-weight: bold;
+  color: var(--primary);
+  border-top: 2px solid var(--border);
+  padding: var(--spacing-2) var(--spacing-4);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.actionBtnGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+
+.actionBtnGroup button {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.deleteAllBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.deleteDialogContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-2);
+}
+
+.deleteWarning {
+  color: var(--error);
+  font-weight: 500;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.deleteActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-2);
+}
+
+@media (max-width: 430px) {
+  .table th, .table td {
+    padding: var(--spacing-2);
+  }
+}

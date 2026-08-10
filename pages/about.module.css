@@ -1,0 +1,78 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+    background-color: #2e2e2e;
+
+}
+
+.imageSection {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.imageWrapper {
+  width: 70%;
+  margin: 0 auto;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent), linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
+-webkit-mask-composite: destination-in;
+mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent), linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
+mask-composite: intersect;
+  display: flex;
+}
+
+.fullWidthImage {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* Increase specificity to override Button module styles without !important */
+.pageContainer .ctaButton {
+  position: absolute;
+  bottom: var(--spacing-8);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 0 var(--spacing-3);
+  font-size: 0.7rem;
+  box-shadow: none;
+  z-index: 10;
+  height: 2rem;
+}
+
+.pageContainer .ctaButton:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .imageWrapper {
+    width: 100%;
+  }
+
+  .pageContainer .ctaButton {
+    bottom: var(--spacing-6);
+    padding: 0 var(--spacing-2);
+    font-size: 0.65rem;
+    height: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageContainer .ctaButton {
+    bottom: var(--spacing-4);
+    padding: 0 var(--spacing-2);
+    font-size: 0.6rem;
+    height: 1.5rem;
+    width: auto;
+  }
+}

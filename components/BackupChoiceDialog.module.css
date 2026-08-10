@@ -1,0 +1,193 @@
+@layer base {
+  .dialogContent {
+    /* Ensure the dialog has enough vertical space for the list */
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .optionCards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    margin-top: var(--spacing-2);
+  }
+
+  .optionCard {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    padding: var(--spacing-4);
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    text-align: left;
+    transition:
+      transform var(--animation-duration-fast) ease,
+      background-color var(--animation-duration-fast) ease,
+      border-color var(--animation-duration-fast) ease;
+    color: var(--foreground);
+    outline: none;
+  }
+
+  .optionCard:hover:not(:disabled) {
+    border-color: var(--primary);
+    background-color: color-mix(in srgb, var(--card) 95%, var(--primary) 5%);
+    transform: translateY(-2px);
+  }
+
+  .optionCard:focus-visible {
+    box-shadow: var(--shadow-focus);
+    border-color: var(--primary);
+  }
+
+  .optionCard:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .optionIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--radius-full);
+    background-color: color-mix(in srgb, var(--primary) 15%, transparent);
+    color: var(--primary);
+    flex-shrink: 0;
+  }
+
+  .optionText h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 var(--spacing-1) 0;
+    font-family: var(--font-family-base);
+  }
+
+  .optionText p {
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+    margin: 0;
+  }
+
+  .step2Container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    margin-top: var(--spacing-2);
+  }
+
+  .searchBar {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .searchIcon {
+    position: absolute;
+    left: var(--spacing-3);
+    color: var(--muted-foreground);
+    pointer-events: none;
+  }
+
+  .listHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: var(--spacing-2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .toggleAllBtn {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+    transition: color var(--animation-duration-fast) ease;
+  }
+
+  .toggleAllBtn:hover {
+    text-decoration: underline;
+    color: color-mix(in srgb, var(--primary) 90%, white);
+  }
+
+  .selectedCount {
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+  }
+
+  .customerList {
+    display: flex;
+    flex-direction: column;
+    max-height: 400px;
+    overflow-y: auto;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background-color: color-mix(in srgb, var(--background) 50%, var(--card));
+  }
+
+  /* Custom scrollbar for customer list */
+  .customerList::-webkit-scrollbar {
+    width: 6px;
+  }
+  .customerList::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .customerList::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: var(--radius-full);
+  }
+
+  .customerRow {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background-color var(--animation-duration-fast) ease;
+  }
+
+  .customerRow:last-child {
+    border-bottom: none;
+  }
+
+  .customerRow:hover {
+    background-color: color-mix(in srgb, var(--card) 60%, transparent);
+  }
+
+  .customerInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .customerName {
+    font-weight: 500;
+    font-size: 0.9375rem;
+  }
+
+  .customerEmail {
+    font-size: 0.8125rem;
+    color: var(--muted-foreground);
+  }
+
+  .companyName {
+    font-size: 0.75rem;
+    color: var(--info);
+    font-weight: 500;
+    margin-top: 0.125rem;
+  }
+
+  .emptyState {
+    padding: var(--spacing-8);
+    text-align: center;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+  }
+}

@@ -1,0 +1,188 @@
+.viewContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  animation: fadeIn var(--animation-duration-normal) ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h2 {
+  margin: 0;
+  color: var(--foreground);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  flex-wrap: wrap;
+}
+
+.globalFeeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.globalFeeRow label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.feeInput {
+  max-width: 100px;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background-color: var(--background);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.table th, .table td {
+  border-bottom: 1px solid var(--border);
+  padding: var(--spacing-3) var(--spacing-4);
+  text-align: left;
+  color: var(--foreground);
+}
+
+.table th {
+  background-color: var(--surface);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+.sortableHeader {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--animation-duration-fast) ease, color var(--animation-duration-fast) ease;
+}
+
+.sortableHeader:hover {
+  background-color: color-mix(in srgb, var(--surface) 80%, var(--foreground));
+  color: var(--foreground);
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+.sortIndicator {
+  font-size: 0.75rem;
+  color: var(--primary);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.summaryRow {
+  background-color: color-mix(in srgb, var(--surface) 60%, var(--background));
+  border-bottom: 2px solid var(--border);
+}
+
+.summaryRow td {
+  font-weight: 700;
+}
+
+.clickableRow {
+  cursor: pointer;
+  transition: background-color var(--animation-duration-fast) ease;
+}
+
+.clickableRow:hover {
+  background-color: color-mix(in srgb, var(--primary) 10%, transparent);
+}
+
+.dialogContent {
+  max-width: 500px;
+}
+
+.formGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding: var(--spacing-2) 0;
+}
+
+.inputRow {
+  display: flex;
+  gap: var(--spacing-4);
+}
+
+.flex1 {
+  flex: 1;
+}
+
+.mapContainer {
+  margin-bottom: var(--spacing-2);
+}
+
+.mapPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  background-color: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  padding: var(--spacing-4);
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+.formActions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--spacing-6);
+  padding-top: var(--spacing-4);
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 430px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-4);
+  }
+
+  .headerActions {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .inputRow {
+    flex-direction: column;
+  }
+
+  .formGrid {
+    gap: var(--spacing-2);
+  }
+
+  .dialogContent {
+    max-width: 95vw;
+  }
+}

@@ -1,0 +1,313 @@
+.sectionBox {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  padding: var(--spacing-6);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--spacing-4);
+}
+
+.sectionHeader h3 {
+  margin: 0;
+  margin-bottom: var(--spacing-2);
+  color: var(--foreground);
+  font-size: 1.125rem;
+}
+
+.description {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.statusConnected {
+  padding: var(--spacing-3) var(--spacing-4);
+  background-color: color-mix(in srgb, var(--success) 15%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--success) 30%, var(--surface));
+  border-radius: var(--radius-sm);
+  color: var(--foreground);
+  margin-top: var(--spacing-2);
+}
+
+.statusDisconnected {
+  padding: var(--spacing-6);
+  background-color: var(--surface);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-4);
+  text-align: center;
+  margin-top: var(--spacing-2);
+}
+
+.statusDisconnected p {
+  margin: 0;
+  color: var(--muted-foreground);
+}
+
+.inboxContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+}
+
+.inboxHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.inboxHeader h4 {
+  margin: 0;
+  font-size: 1.125rem;
+  color: var(--foreground);
+}
+
+.emailList {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface);
+  overflow: hidden;
+}
+
+.emailItem {
+  padding: var(--spacing-4);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background-color var(--animation-duration-fast) ease;
+  display: flex;
+  flex-direction: row;
+}
+
+.emailItemContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.emailItemActions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding-left: var(--spacing-3);
+}
+
+.deleteButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted-foreground);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  transition: color var(--animation-duration-fast) ease, background-color var(--animation-duration-fast) ease;
+}
+
+.deleteButton:hover:not(:disabled) {
+  color: var(--error);
+  background-color: color-mix(in srgb, var(--error) 10%, transparent);
+}
+
+.deleteButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.repliedCheck {
+  color: var(--success);
+  display: flex;
+  align-items: center;
+}
+
+.emailItem:last-child {
+  border-bottom: none;
+}
+
+.emailItem:hover {
+  background-color: color-mix(in srgb, var(--primary) 10%, var(--surface));
+}
+
+.emailItem.unread {
+  background-color: color-mix(in srgb, var(--primary) 5%, var(--surface));
+}
+
+.emailItem.unread .emailItemSubject,
+.emailItem.unread .emailItemSender {
+  font-weight: 600;
+}
+
+.emailItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-1);
+}
+
+.emailItemSender {
+  font-size: 0.9375rem;
+  color: var(--foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.emailItemDate {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.emailItemSubject {
+  font-size: 0.9375rem;
+  color: var(--foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.emailItemPreview {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: var(--spacing-1);
+}
+
+.emptyInbox {
+  text-align: center;
+  padding: var(--spacing-8);
+  color: var(--muted-foreground);
+  background-color: var(--surface);
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--border);
+  margin: 0;
+}
+
+div.emailDialogContent, div.composeDialogContent {
+  width: 48rem;
+  max-width: 95vw;
+}
+
+.emailBodyContainer {
+  margin: var(--spacing-4) 0;
+  padding: var(--spacing-4);
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  max-height: 50vh;
+  overflow-y: auto;
+  color: var(--foreground);
+}
+
+.emailBodyText {
+  white-space: pre-wrap;
+  font-family: inherit;
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.emailDialogActions {
+  position: absolute;
+  top: var(--spacing-4);
+  right: 3.5rem;
+  z-index: 1;
+}
+
+.composeForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-2);
+}
+
+.signatureSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-2);
+}
+
+.signatureSection label {
+  font-family: var(--font-family-base);
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--foreground);
+}
+
+.signaturePreview {
+  padding: var(--spacing-3);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-top: var(--spacing-2);
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  overflow-x: auto;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding-top: var(--spacing-2);
+}
+
+.paginationText {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+@media (max-width: 768px) {
+  .sectionHeader {
+    flex-direction: column;
+    gap: var(--spacing-4);
+  }
+  
+  div.emailDialogContent, div.composeDialogContent {
+    width: 95vw;
+    padding: var(--spacing-4);
+  }
+}
+
+@media (max-width: 430px) {
+  .inboxHeader {
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: var(--spacing-1);
+  }
+
+  .inboxHeader h4 {
+    font-size: 0.875rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .inboxHeader button {
+    font-size: 0.7rem;
+    padding: var(--spacing-1) var(--spacing-2);
+    white-space: nowrap;
+  }
+}

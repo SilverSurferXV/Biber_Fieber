@@ -1,0 +1,107 @@
+@import url(https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap);
+@import url(https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap);
+@import url(https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap);
+:root {
+  /* Overlay layers */
+  --z-overlay: 400;
+
+  --z-spotlight: 1000; /* Tutorial spotlights/guided help */
+
+  /* System layers */
+  --z-critical: 2000; /* Critical system notifications */
+
+  /* spacing */
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+  --spacing-20: 5rem;
+}
+
+:root {
+  /* Core Palette - Dark Mode First */
+  --background: #2e2e2e;
+  --foreground: #fcfaf5;
+
+  --surface: #3a3a3a;
+  --surface-foreground: #fcfaf5;
+  --sidebar: #262626;
+  --sidebar-foreground: #fcfaf5;
+  --card: #383838;
+  --card-foreground: #fcfaf5;
+  --popup: #404040;
+  --popup-foreground: #fcfaf5;
+
+  /* Brand Colors */
+  --primary: #6ECFB5;
+  --primary-foreground: #122620;
+  
+  --secondary: #E8403A;
+  --secondary-foreground: #ffffff;
+  
+  --accent: #F5A623;
+  --accent-foreground: #4a1c00;
+
+  /* Utility Colors */
+  --muted: #4a4a4a;
+  --muted-foreground: #b3b3b3;
+  
+  --success: #6ECFB5;
+  --success-foreground: #122620;
+  
+  --error: #E8403A;
+  --error-foreground: #ffffff;
+  
+  --warning: #F5A623;
+  --warning-foreground: #4a1c00;
+  
+  --info: #88d4e0;
+  --info-foreground: #112a30;
+  --info-hover: #75c5d2;
+  --info-active: #62b6c4;
+
+  --border: #4d4d4d;
+
+  /* Signature Brand Gradient */
+  --gradient-sunset: linear-gradient(135deg, #E8403A 0%, #F5A623 100%);
+
+  /* Font Families */
+  --font-family-base: 'DM Sans', system-ui, sans-serif;
+  --font-family-display: 'Fraunces', Georgia, serif;
+  --font-family-monospace: 'JetBrains Mono', monospace;
+  --font-family-cursive: cursive;
+
+  /* Border Radius - Soft & Organic */
+  --radius-sm: 8px;
+  --radius: 16px;
+  --radius-md: 20px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows - Deep and subtle for dark mode */
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-focus: 0 0 0 3px rgba(110, 207, 181, 0.3);
+
+  /* Animation */
+  --animation-duration-fast: 150ms;
+  --animation-duration-normal: 250ms;
+  --animation-duration-slow: 400ms;
+
+  /* Chart Colors for Admin Dashboard */
+  --chart-color-1: #6ECFB5;
+  --chart-color-2: #E8403A;
+  --chart-color-3: #F5A623;
+  --chart-color-4: #a3d9c9;
+  --chart-color-5: #f28b82;
+}
+
+.dark {
+  /* The design is dark-mode-first and dark-only by default, 
+     so no overrides are necessary here. */
+}

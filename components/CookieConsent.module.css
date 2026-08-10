@@ -1,0 +1,187 @@
+@layer base {
+  .overlay {
+    position: fixed;
+    bottom: var(--spacing-4);
+    left: var(--spacing-4);
+    right: var(--spacing-4);
+    z-index: var(--z-critical);
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .banner {
+    pointer-events: auto;
+    background-color: color-mix(in srgb, var(--popup) 90%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-6);
+    width: 100%;
+    max-width: 800px;
+    animation: slideUp var(--animation-duration-slow) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    color: var(--popup-foreground);
+  }
+
+  .mainView {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-6);
+  }
+
+  @media (min-width: 768px) {
+    .mainView {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  .content {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-4);
+    flex: 1;
+  }
+
+  .iconWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background-color: color-mix(in srgb, var(--primary) 15%, transparent);
+    color: var(--primary);
+    flex-shrink: 0;
+  }
+
+  .text {
+    font-family: var(--font-family-base);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--popup-foreground);
+    margin: 0;
+    align-self: center;
+  }
+
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    flex-shrink: 0;
+  }
+
+  @media (min-width: 768px) {
+    .actions {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+
+  .button {
+    width: 100%;
+  }
+
+  @media (min-width: 768px) {
+    .button {
+      width: auto;
+    }
+  }
+
+  .settingsButton {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+  }
+
+  .settingsButton:hover {
+    color: var(--popup-foreground);
+  }
+
+  /* Settings View */
+  .settingsView {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-6);
+    animation: fadeIn var(--animation-duration-normal) ease forwards;
+  }
+
+  .settingsTitle {
+    font-family: var(--font-family-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--popup-foreground);
+  }
+
+  .toggleList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+  }
+
+  .toggleItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-4);
+    padding-bottom: var(--spacing-4);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .toggleItem:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .toggleInfo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+  }
+
+  .toggleLabel {
+    font-weight: 500;
+    font-size: 1rem;
+    color: var(--popup-foreground);
+    cursor: pointer;
+  }
+
+  .toggleDesc {
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+    line-height: 1.4;
+  }
+
+  .settingsActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-2);
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}

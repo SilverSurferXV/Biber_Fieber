@@ -1,0 +1,58 @@
+@layer base {
+  .editorContainer {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  
+  .signatureToolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-1);
+    padding: var(--spacing-2);
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-top-left-radius: var(--radius);
+    border-top-right-radius: var(--radius);
+    align-items: center;
+  }
+  
+  .toolbarButton {
+    color: var(--muted-foreground);
+  }
+  
+  .toolbarButton:hover {
+    color: var(--foreground);
+    background-color: var(--background);
+  }
+  
+  .toolbarSeparator {
+    width: 1px;
+    height: 1.25rem;
+    background-color: var(--border);
+    margin: 0 var(--spacing-1);
+  }
+  
+  .previewContainer {
+    margin-top: var(--spacing-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+  
+  .signaturePreview {
+    padding: var(--spacing-3);
+    background-color: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    min-height: 4rem;
+    color: var(--foreground);
+    font-size: 0.9375rem;
+  }
+  
+  .signaturePreview a {
+    color: var(--primary);
+    text-decoration: underline;
+  }
+}

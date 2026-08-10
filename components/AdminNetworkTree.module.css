@@ -1,0 +1,125 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  animation: fadeIn var(--animation-duration-normal) ease;
+}
+
+.stats {
+  display: flex;
+  gap: var(--spacing-6);
+  background: var(--surface);
+  padding: var(--spacing-4) var(--spacing-6);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--foreground);
+  font-family: var(--font-family-display);
+}
+
+.treeWrapper {
+  background: var(--background);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  overflow: auto;
+  padding: var(--spacing-8);
+  min-height: 600px;
+  position: relative;
+}
+
+.emptyState {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--muted-foreground);
+  font-size: 1rem;
+}
+
+.nodeGroup {
+  cursor: pointer;
+}
+
+.nodeCircle {
+  fill: var(--surface);
+  stroke: var(--primary);
+  stroke-width: 2px;
+  transition: fill 0.2s ease, stroke 0.2s ease;
+}
+
+.nodeGroup:hover .nodeCircle {
+  fill: color-mix(in srgb, var(--primary) 15%, var(--surface));
+}
+
+.initials {
+  fill: var(--foreground);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-family-base);
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.nodeText {
+  fill: var(--foreground);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-family-base);
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.nodeBibercode {
+  fill: var(--muted-foreground);
+  font-size: 10px;
+  font-family: var(--font-family-monospace);
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.badgeCircle {
+  fill: var(--surface);
+  stroke: var(--secondary);
+  stroke-width: 1.5px;
+}
+
+.badgeText {
+  fill: var(--foreground);
+  font-size: 12px;
+  font-weight: bold;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.line {
+  stroke: var(--border);
+  stroke-width: 2px;
+  fill: none;
+}
+
+.skeletonWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

@@ -1,0 +1,143 @@
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--spacing-8) var(--spacing-4);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: var(--spacing-12);
+}
+
+.title {
+  font-family: var(--font-family-display);
+  font-size: 3rem;
+  color: var(--primary);
+  margin: 0 0 var(--spacing-2) 0;
+}
+
+.subtitle {
+  color: var(--muted-foreground);
+  font-size: 1.125rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-6);
+}
+
+.skeletonCard {
+  height: 200px;
+  border-radius: var(--radius-md);
+}
+
+.card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  transition: transform var(--animation-duration-normal) ease, border-color var(--animation-duration-normal) ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary);
+}
+
+.iconBox {
+  width: 64px;
+  height: 64px;
+  background-color: color-mix(in srgb, var(--primary) 15%, var(--surface));
+  color: var(--primary);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.fileTitle {
+  margin: 0 0 var(--spacing-2) 0;
+  font-size: 1.25rem;
+  color: var(--foreground);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.fileSize {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  font-weight: normal;
+}
+
+.fileDesc {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  margin: 0 0 var(--spacing-4) 0;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.buttonGroup {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.actionBtn {
+  flex: 1;
+  min-width: 120px;
+  gap: var(--spacing-2);
+  justify-content: center;
+}
+
+.empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--spacing-12);
+  background-color: var(--surface);
+  border-radius: var(--radius-md);
+  color: var(--muted-foreground);
+}
+
+.pdfViewerContainer {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: var(--spacing-4);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+.pdfPage {
+  margin-bottom: var(--spacing-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pdfPageLabel {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin-bottom: var(--spacing-2);
+  text-align: center;
+}
+
+.pdfCanvas {
+  max-width: 100%;
+  display: block;
+  margin: 0 auto;
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-sm);
+}

@@ -1,0 +1,323 @@
+.viewContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  animation: fadeIn var(--animation-duration-normal) ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.header h2 {
+  margin: 0;
+  color: var(--foreground);
+  font-family: var(--font-family-display);
+  font-size: 1.75rem;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.9375rem;
+}
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--spacing-6);
+}
+
+.templateCard {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--animation-duration-fast) ease, box-shadow var(--animation-duration-fast) ease;
+  overflow: hidden;
+}
+
+.templateCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: color-mix(in srgb, var(--primary) 30%, var(--border));
+}
+
+.cardHeader {
+  padding: 1.25rem 1.25rem var(--spacing-3);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.cardIconWrapper {
+  background-color: color-mix(in srgb, var(--primary) 15%, transparent);
+  color: var(--primary);
+  padding: var(--spacing-2);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardHeader h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--card-foreground);
+  font-family: var(--font-family-display);
+}
+
+.cardBody {
+  padding: 0 1.25rem var(--spacing-4);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.cardDescription {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+
+.metaInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  background-color: color-mix(in srgb, var(--background) 50%, transparent);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-sm);
+  margin-top: auto;
+}
+
+.cardFooter {
+  padding: var(--spacing-4) 1.25rem;
+  border-top: 1px solid var(--border);
+  background-color: color-mix(in srgb, var(--background) 30%, transparent);
+}
+
+.editButton {
+  width: 100%;
+}
+
+.skeletonCard {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+
+.errorMessage {
+  background-color: color-mix(in srgb, var(--error) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--error) 30%, transparent);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-6);
+  color: var(--error);
+}
+
+.errorMessage pre {
+  margin-top: var(--spacing-2);
+  font-family: var(--font-family-monospace);
+  font-size: 0.875rem;
+  white-space: pre-wrap;
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--spacing-12);
+  color: var(--muted-foreground);
+  background-color: var(--card);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border);
+}
+
+/* Editor View Styles */
+.editorView {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  animation: fadeIn var(--animation-duration-normal) ease;
+  background-color: var(--card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.editorHeader {
+  padding: var(--spacing-6);
+  border-bottom: 1px solid var(--border);
+  background-color: color-mix(in srgb, var(--background) 40%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.backButton {
+  align-self: flex-start;
+  color: var(--muted-foreground);
+}
+
+.backButton:hover {
+  color: var(--foreground);
+}
+
+.editorTitleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+}
+
+.titleContent h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-family: var(--font-family-display);
+  color: var(--foreground);
+}
+
+.titleContent .description {
+  margin: var(--spacing-2) 0 0 0;
+  color: var(--muted-foreground);
+  font-size: 0.9375rem;
+}
+
+.actionButtons {
+  display: flex;
+  gap: var(--spacing-3);
+}
+
+.editorContent {
+  padding: var(--spacing-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.label {
+  font-weight: 600;
+  color: var(--foreground);
+  font-size: 0.9375rem;
+}
+
+.helpText {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+
+.variableGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-1);
+}
+
+.variableBadge {
+  cursor: pointer;
+  transition: all var(--animation-duration-fast) ease;
+  font-family: var(--font-family-monospace);
+  padding: var(--spacing-2) var(--spacing-3);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.variableBadge:hover {
+  background-color: color-mix(in srgb, var(--primary) 20%, transparent);
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.copyIcon {
+  opacity: 0.5;
+}
+
+.variableBadge:hover .copyIcon {
+  opacity: 1;
+}
+
+.noVariables {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+
+.tabsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.tabContent {
+  margin-top: var(--spacing-2);
+}
+
+.htmlTextarea {
+  font-family: var(--font-family-monospace) !important;
+  font-size: 0.875rem !important;
+  line-height: 1.6 !important;
+  min-height: 500px !important;
+  padding: var(--spacing-4) !important;
+  background-color: color-mix(in srgb, var(--background) 90%, black) !important;
+}
+
+.previewWrapper {
+  background-color: #f5f5f5; /* Email clients are usually light */
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: var(--spacing-6);
+  min-height: 500px;
+  overflow-y: auto;
+}
+
+.previewIframeSimulation {
+  background-color: #ffffff;
+  color: #000000; /* Force black text for preview baseline */
+  min-height: 100%;
+  max-width: 600px; /* Standard email width */
+  margin: 0 auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: var(--spacing-4);
+  font-family: sans-serif; /* Baseline font */
+}
+
+/* Ensure global dark mode styles don't leak into the preview container where possible */
+.previewIframeSimulation :global(*) {
+  color: inherit;
+}
+
+@media (max-width: 640px) {
+  .editorTitleRow {
+    flex-direction: column;
+  }
+  
+  .actionButtons {
+    width: 100%;
+  }
+  
+  .actionButtons button {
+    flex: 1;
+  }
+}

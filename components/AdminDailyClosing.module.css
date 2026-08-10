@@ -1,0 +1,84 @@
+@layer base {
+  .closingList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-6);
+  }
+
+  .dayHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-4);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: var(--spacing-2);
+  }
+
+  .dayTitle {
+    margin: 0;
+    font-family: var(--font-family-display);
+    font-size: 1.5rem;
+    color: var(--foreground);
+  }
+
+  .statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-6);
+  }
+
+  .statItem {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--surface);
+    padding: var(--spacing-4);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+  }
+
+  .statLabel {
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+    margin-bottom: var(--spacing-1);
+  }
+
+    .statValue {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--foreground);
+    font-family: var(--font-family-monospace);
+  }
+
+  .statPercent {
+    font-size: 0.8rem;
+    color: var(--muted-foreground);
+    margin-top: var(--spacing-1);
+  }
+
+  .taxSection {
+    margin-top: var(--spacing-4);
+  }
+
+  .taxTitle {
+    margin: 0 0 var(--spacing-3) 0;
+    font-size: 1.125rem;
+    color: var(--foreground);
+  }
+
+  @media (max-width: 430px) {
+    .statsGrid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .dayTitle {
+      font-size: 1.1rem;
+    }
+
+    .dayHeader {
+      flex-direction: column;
+      gap: var(--spacing-2);
+      align-items: flex-start;
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "compressLogs": {
+    "enabled": true,
+    "schedule": "0 4 * * *",
+    "timezone": "Europe/Berlin"
+  },
+  "autoApproveCN": {
+    "enabled": true,
+    "schedule": "0 * * * *",
+    "timezone": "Europe/Berlin"
+  },
+  "cleanupOldData": {
+    "enabled": true,
+    "schedule": "0 3 * * *",
+    "timezone": "Europe/Berlin"
+  },
+  "expireNewProducts": {
+    "enabled": true,
+    "schedule": "0 0 * * *",
+    "timezone": "Europe/Berlin"
+  }
+}

@@ -1,0 +1,292 @@
+@layer base {
+  .container {
+    --driver-accent: #4a6fa5;
+    --driver-accent-transparent: rgba(74, 111, 165, 0.15);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-6);
+    width: 100%;
+  }
+
+  .loadingContainer,
+  .errorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-12);
+    gap: var(--spacing-4);
+    background-color: var(--surface);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    color: var(--muted-foreground);
+    border: 1px solid var(--border);
+  }
+
+  .errorText {
+    color: var(--error);
+    font-weight: 500;
+  }
+
+  .header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    align-items: flex-start;
+  }
+
+  .titleWrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+  }
+
+  .headerIcon {
+    color: var(--driver-accent);
+  }
+
+  .title {
+    font-family: var(--font-family-display);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--foreground);
+    margin: 0;
+  }
+
+  .tableSection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+  }
+
+  .tableWrapper {
+    width: 100%;
+    overflow-x: auto;
+    background-color: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .table th,
+  .table td {
+    padding: var(--spacing-4) var(--spacing-6);
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .table th {
+    font-weight: 600;
+    color: var(--muted-foreground);
+    background-color: color-mix(in srgb, var(--surface) 80%, black);
+    white-space: nowrap;
+  }
+
+  .table td {
+    color: var(--foreground);
+  }
+
+  .table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .table tbody tr:hover td {
+    background-color: color-mix(in srgb, var(--surface) 95%, white);
+  }
+
+  .clickableRow {
+    cursor: pointer;
+  }
+
+  .alignRight {
+    text-align: right !important;
+  }
+
+  .emptyState {
+    color: var(--muted-foreground);
+    padding: var(--spacing-6);
+    background-color: var(--surface);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+
+  .fw500 {
+    font-weight: 500;
+  }
+
+  .fw600 {
+    font-weight: 600;
+  }
+
+  .subText {
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    margin-top: 0.125rem;
+  }
+
+  .statusCell {
+    min-width: 240px;
+  }
+
+  .actionContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-2);
+  }
+
+  .badgeWrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    flex-wrap: wrap;
+  }
+
+  .countdown {
+    font-size: 0.75rem;
+    color: var(--warning);
+    font-weight: 500;
+  }
+
+  .dateHint {
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+  }
+
+  .blueBadge {
+    background-color: color-mix(in srgb, var(--info) 15%, var(--surface)) !important;
+    color: var(--info) !important;
+    border: 1px solid color-mix(in srgb, var(--info) 20%, var(--surface)) !important;
+  }
+  
+  .approveButton {
+    background-color: var(--success);
+    color: var(--success-foreground);
+    border-color: var(--success);
+    margin-top: var(--spacing-1);
+  }
+  
+  .approveButton:hover:not(:disabled) {
+    background-color: color-mix(in oklch, var(--success) 90%, var(--success-foreground));
+  }
+
+  /* Sheet styles */
+  .sheetBody {
+    flex: 1;
+    padding: var(--spacing-4);
+    overflow-y: auto;
+  }
+
+  .gutschriftWebView {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+  }
+
+  .senderBlock {
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .senderBlock p {
+    margin: 0;
+  }
+
+  .dividerLine {
+    height: 1px;
+    background: var(--border);
+    width: 100%;
+  }
+
+  .gutschriftTitle {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--foreground);
+    margin: 0;
+  }
+
+  .metaRow {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-6);
+    flex-wrap: wrap;
+  }
+
+  .metaRow p {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .recipientBlock {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .metaInfo {
+    text-align: right;
+  }
+
+  .webSectionTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #6ECFB5;
+    margin: var(--spacing-2) 0 0 0;
+  }
+
+  .subtotalRow {
+    background-color: color-mix(in srgb, var(--surface) 90%, black);
+  }
+
+  .summaryBlock {
+    margin-top: var(--spacing-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    align-items: flex-end;
+    max-width: 320px;
+    align-self: flex-end;
+    width: 100%;
+  }
+
+  .summaryRow {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-8);
+    width: 100%;
+    font-size: 0.875rem;
+  }
+
+  .summaryTotal {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-top: var(--spacing-2);
+    padding-top: var(--spacing-2);
+    border-top: 2px solid var(--border);
+  }
+
+  .statusInfoBlock {
+    margin-top: var(--spacing-4);
+  }
+
+  .sheetActions {
+    display: flex;
+    gap: var(--spacing-3);
+    flex-wrap: wrap;
+  }
+
+  .noDetailHint {
+    font-size: 0.8rem;
+    color: var(--muted-foreground);
+    font-style: italic;
+    margin-top: var(--spacing-2);
+  }
+}

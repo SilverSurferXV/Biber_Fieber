@@ -1,0 +1,179 @@
+.viewContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  animation: fadeIn var(--animation-duration-normal) ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h2 {
+  margin: 0;
+  color: var(--foreground);
+  font-family: var(--font-family-display);
+}
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-6);
+}
+
+.sectionBox {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  padding: var(--spacing-6);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.sectionBox h3 {
+  margin: 0;
+  margin-bottom: var(--spacing-2);
+  color: var(--foreground);
+  font-size: 1.125rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--spacing-2);
+  font-family: var(--font-family-display);
+}
+
+.statusContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.statusLabel {
+  font-weight: 500;
+  color: var(--muted-foreground);
+  min-width: 120px;
+}
+
+.maskedKey {
+  font-family: var(--font-family-monospace);
+  background-color: var(--surface);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--radius-sm);
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+
+.errorMessage {
+  color: var(--error);
+  background-color: color-mix(in srgb, var(--error) 15%, var(--surface));
+  padding: var(--spacing-3);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+}
+
+.badgeContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.methodBadge {
+  background-color: var(--surface);
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: 0.75rem;
+}
+
+.senderRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  background-color: var(--surface);
+  padding: var(--spacing-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.senderIcon {
+  color: var(--muted-foreground);
+}
+
+.senderEmail {
+  flex: 1;
+  font-size: 0.875rem;
+  color: var(--foreground);
+}
+
+.skeletonGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background-color: var(--background);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.table th, .table td {
+  border-bottom: 1px solid var(--border);
+  padding: var(--spacing-3) var(--spacing-4);
+  text-align: left;
+  color: var(--foreground);
+}
+
+.table th {
+  background-color: var(--surface);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background-color: color-mix(in srgb, var(--primary) 5%, transparent);
+}
+
+.emptyState {
+  text-align: center;
+  color: var(--muted-foreground);
+  padding: var(--spacing-6) !important;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 430px) {
+  .table th, .table td {
+    padding: var(--spacing-2);
+    font-size: 0.75rem;
+  }
+
+  .gridContainer {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionBox {
+    padding: var(--spacing-4);
+  }
+}

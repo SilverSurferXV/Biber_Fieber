@@ -1,0 +1,133 @@
+.viewContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  animation: fadeIn var(--animation-duration-normal) ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.invoiceHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-4);
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+}
+
+.monthSelect {
+  width: 200px;
+}
+
+@media (max-width: 767px) {
+  .monthSelect {
+    width: 100%;
+  }
+}
+
+.invoiceContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.invoiceDays {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.invoiceDayGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.invoiceDayTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--spacing-2);
+}
+
+.invoiceOrders {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.invoiceOrder {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-4);
+}
+
+.invoiceOrderHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-2);
+  font-weight: 600;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.invoiceItems {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.invoiceItem {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.invoiceSummary {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: var(--spacing-4);
+  background-color: var(--surface);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.invoiceSummaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+}
+
+.invoiceTotal {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.invoicePoints {
+  font-size: 1.125rem;
+  color: var(--accent);
+}
+
+.invoiceLoading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.emptyState {
+  color: var(--muted-foreground);
+  font-style: italic;
+}

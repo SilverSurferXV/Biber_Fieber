@@ -1,0 +1,448 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  padding: var(--spacing-8) var(--spacing-4);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--spacing-6);
+  padding: var(--spacing-12) 0;
+}
+
+.heroLogo {
+  height: 320px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: var(--spacing-4);
+}
+
+.heroTitle {
+  font-family: var(--font-family-display);
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0;
+  line-height: 1.1;
+}
+
+.heroSubtitle {
+  font-size: 1.25rem;
+  color: var(--muted-foreground);
+  max-width: 600px;
+}
+
+.heroReduced .heroTitle {
+  font-size: 2rem;
+}
+
+.heroReduced .heroSubtitle {
+  display: none;
+}
+
+.heroReduced .ctaButton {
+  transition: none;
+}
+
+.connectionWarning {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.countdownBox {
+  background-color: var(--surface);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-6);
+  min-width: 320px;
+  box-shadow: var(--shadow-md);
+}
+
+.timeBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.timeLabel {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.timeValue {
+  font-family: var(--font-family-monospace);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--gradient-sunset);
+    -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.ctaButton {
+  background: var(--gradient-sunset);
+  border: none;
+  font-size: 1.125rem;
+  padding: 0 var(--spacing-8);
+  height: 3.5rem;
+  border-radius: var(--radius-full);
+}
+
+.ctaButton:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+.supportSection {
+  display: flex;
+  justify-content: center;
+}
+
+.supportLink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2);
+  opacity: 0.5;
+  transition: opacity var(--animation-duration-normal) ease-in-out;
+  text-decoration: none;
+}
+
+.supportLink:hover {
+  opacity: 1;
+}
+
+.supportText {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.widgetsSection {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-6);
+}
+
+@media (min-width: 768px) {
+  .widgetsSection {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.weatherWidget {
+  background-color: var(--surface);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.pointsWidget {
+  background-color: var(--surface);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-6);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--spacing-2);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.weatherTop {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.weatherSeparator {
+  height: 1px;
+  background-color: var(--border);
+  width: 100%;
+}
+
+.holidaysCompact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.holidaysTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--primary);
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.holidayListCompact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.holidayItemCompact {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.holidayItemCompact span:first-child {
+  color: var(--foreground);
+}
+
+.weatherIcon {
+  color: var(--accent);
+}
+
+.weatherInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.temp {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.date {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+
+
+.pointsLabel {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.pointsValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.pointsActions {
+  display: flex;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-2);
+  flex-wrap: wrap;
+}
+
+.topupBtn {
+}
+
+.loginBtn {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.socialSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-8);
+  text-align: center;
+}
+
+.socialSection h3 {
+  font-family: var(--font-family-display);
+  font-size: 1.5rem;
+  margin: 0;
+  color: var(--foreground);
+}
+
+.socialLinks {
+  display: flex;
+  gap: var(--spacing-4);
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.socialIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  transition: all var(--animation-duration-fast) ease-in-out;
+}
+
+.socialIcon.whatsapp:hover {
+  background-color: color-mix(in srgb, #25D366 15%, transparent);
+  border-color: #25D366;
+  color: #25D366;
+}
+
+.socialIcon.instagram:hover {
+  background-color: color-mix(in srgb, #E1306C 15%, transparent);
+  border-color: #E1306C;
+  color: #E1306C;
+}
+
+.socialIcon.facebook:hover {
+  background-color: color-mix(in srgb, #1877F2 15%, transparent);
+  border-color: #1877F2;
+  color: #1877F2;
+}
+
+.socialIcon.tiktok:hover {
+  background-color: color-mix(in srgb, var(--foreground) 15%, transparent);
+  border-color: var(--foreground);
+  color: var(--foreground);
+}
+
+.socialIcon.youtube:hover {
+  background-color: color-mix(in srgb, #FF0000 15%, transparent);
+  border-color: #FF0000;
+  color: #FF0000;
+}
+
+.contactSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-6);
+  padding: var(--spacing-8) var(--spacing-4);
+  background-color: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
+  margin: var(--spacing-8) auto 0;
+  max-width: 800px;
+  width: 100%;
+}
+
+.contactSection h3 {
+  font-family: var(--font-family-display);
+  font-size: 2rem;
+  margin: 0;
+  color: var(--foreground);
+  text-align: center;
+}
+
+.contactFormWrapper {
+  width: 100%;
+  max-width: 600px;
+}
+
+.contactForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  width: 100%;
+}
+
+.contactSubmitBtn {
+  background: var(--gradient-sunset);
+  border: none;
+  font-size: 1.125rem;
+  height: 3.5rem;
+  border-radius: var(--radius-full);
+  margin-top: var(--spacing-2);
+}
+
+.contactSubmitBtn:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+.newsSection {
+  background-color: var(--surface);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.newsHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--foreground);
+}
+
+.newsHeader h3 {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: 1.25rem;
+}
+
+.newsIcon {
+  color: var(--primary);
+}
+
+.newsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.newsItem {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-2) 0;
+}
+
+.newsItemLink {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  text-decoration: none;
+  padding: var(--spacing-2) 0;
+  border-bottom: 1px solid var(--border);
+  transition: opacity var(--animation-duration-fast) ease-in-out;
+}
+
+.newsItemLink:last-child {
+  border-bottom: none;
+}
+
+.newsItemLink:hover .newsTitle {
+  color: var(--primary);
+}
+
+.newsTitle {
+  color: var(--foreground);
+  font-weight: 500;
+  line-height: 1.4;
+  transition: color var(--animation-duration-fast) ease-in-out;
+}
+
+.newsDate {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+.newsError, .newsEmpty {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  margin: 0;
+}

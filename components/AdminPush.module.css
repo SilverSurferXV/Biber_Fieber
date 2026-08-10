@@ -1,0 +1,78 @@
+.viewContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  animation: fadeIn var(--animation-duration-normal) ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h2 {
+  margin: 0;
+  color: var(--foreground);
+}
+
+.sectionBox {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  padding: var(--spacing-6);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.sectionBox h3 {
+  margin: 0;
+  margin-bottom: var(--spacing-2);
+  color: var(--foreground);
+  font-size: 1.125rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--spacing-2);
+}
+
+.formGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding: var(--spacing-2) 0;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--spacing-6);
+  padding-top: var(--spacing-4);
+  border-top: 1px solid var(--border);
+}
+
+.infoBox {
+  display: flex;
+  gap: var(--spacing-3);
+  background-color: color-mix(in srgb, var(--info) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--info) 30%, transparent);
+  color: var(--info-foreground);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.infoIcon {
+  flex-shrink: 0;
+  color: var(--info);
+  margin-top: 2px;
+}
+
+:global(.dark) .infoBox {
+  color: color-mix(in srgb, var(--info) 90%, white);
+}
