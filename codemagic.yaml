@@ -19,13 +19,18 @@ workflows:
 
       - name: Install dependencies
         script: |
-          pnpm install --ignore-scripts=false
+          pnpm install --no-frozen-lockfile
 
       - name: Build Web App
         script: |
-          pnpm run build
+          pnpm exec vite build
 
-      - name: Sync Capacitor
+      - name: Check dist
+        script: |
+          ls -la dist
+          test -f dist/index.html
+
+      - name: Sync Capacitor iOS
         script: |
           npx cap sync ios
 
