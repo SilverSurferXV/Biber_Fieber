@@ -3,6 +3,9 @@ workflows:
     name: Biber Fieber iOS
     max_build_duration: 60
 
+    integrations:
+      app_store_connect: Codemagic
+
     environment:
       node: latest
       xcode: latest
@@ -52,3 +55,7 @@ workflows:
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
+
+    publishing:
+      app_store_connect:
+        auth: integration
