@@ -1,0 +1,16 @@
+{
+  "appId": "app.floot.u5b3d39f96d074ac4a072a41647c58fec",
+  "appName": "Biber Fieber Bio‑Frühstück Lieferplattform",
+  "webDir": "dist",
+  "plugins": {
+    "CapacitorCookies": {
+      "enabled": true
+    },
+    "CapacitorHttp": {
+      "enabled": true
+    },
+    "StatusBar": {
+      "overlaysWebView": false
+    }
+  }
+}
