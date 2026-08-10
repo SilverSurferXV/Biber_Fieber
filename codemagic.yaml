@@ -10,22 +10,24 @@ workflows:
     scripts:
       - name: Install dependencies
         script: |
+          cd Biber_Fieber
           corepack enable
           yarn --version
           yarn install
 
       - name: Sync Capacitor iOS
         script: |
+          cd Biber_Fieber
           npx cap sync ios
 
       - name: Install CocoaPods
         script: |
-          cd ios/App
+          cd Biber_Fieber/ios/App
           pod install --repo-update
 
       - name: Build iOS project
         script: |
-          cd ios/App
+          cd Biber_Fieber/ios/App
           xcodebuild \
             -workspace App.xcworkspace \
             -scheme App \
@@ -35,5 +37,5 @@ workflows:
             build
 
     artifacts:
-      - ios/App/build/**/*.app
+      - Biber_Fieber/ios/App/build/**/*.app
       - ~/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
