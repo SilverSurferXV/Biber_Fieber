@@ -8,12 +8,11 @@ workflows:
       xcode: latest
 
     scripts:
-      
-     - name: Install dependencies
-  	script: |
-  	  corepack enable
-  	  yarn --version
-  	  yarn install
+      - name: Install dependencies
+        script: |
+          corepack enable
+          yarn --version
+          yarn install
 
       - name: Sync Capacitor iOS
         script: |
