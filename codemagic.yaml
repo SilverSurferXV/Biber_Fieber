@@ -34,8 +34,8 @@ workflows:
           test -f dist/index.html
 
       - name: Sync Capacitor iOS
- 	script: |
-  	  pnpm exec cap sync ios
+        script: |
+          pnpm exec cap sync ios
 
       - name: Install CocoaPods
         script: |
