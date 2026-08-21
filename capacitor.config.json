@@ -6,9 +6,7 @@
     "CapacitorCookies": {
       "enabled": true
     },
-    "CapacitorHttp": {
-      "enabled": true
-    },
+    
     "StatusBar": {
       "overlaysWebView": false
     }

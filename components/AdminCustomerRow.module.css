@@ -1,4 +1,16 @@
 @layer base {
+  .nameCellWrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+  }
+
+  .newBadge {
+    color: var(--warning);
+    fill: var(--warning);
+    flex-shrink: 0;
+  }
+
   .expandedRow td {
     border-bottom: none;
   }

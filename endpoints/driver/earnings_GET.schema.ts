@@ -6,6 +6,9 @@ export const schema = z.object({});
 export type DailyEarning = {
   date: string;
   stopsCount: number;
+  companyCarStops?: number;
+  grossEarnings?: number;
+  carDeduction?: number;
   earnings: number;
 };
 
@@ -18,6 +21,9 @@ export type OutputType = {
   dailyEarnings: DailyEarning[];
   totalEarnings: number;
   totalStops: number;
+  totalCompanyCarStops?: number;
+  totalGrossEarnings?: number;
+  totalCarDeduction?: number;
   packagingCompensation: number;
   packagingDays: PackagingDay[];
   totalPackagingEarnings: number;

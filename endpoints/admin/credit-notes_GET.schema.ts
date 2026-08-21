@@ -11,9 +11,10 @@ export type AdminCreditNoteItem = {
   gutschriftNumber: string;
   blockStart: Date;
   blockEnd: Date;
-  totalAmount: number;
-  vatAmount: number | null;
-  status: CreditNoteStatus;
+ totalAmount: number;
+ totalCarDeduction: number;
+ vatAmount: number | null;
+ status: CreditNoteStatus;
   approvedAt: Date | null;
   expiresAt: Date;
   createdAt: Date;

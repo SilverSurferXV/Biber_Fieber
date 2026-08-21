@@ -8,16 +8,25 @@ import {
   SessionExpirationSeconds,
 } from "../../helpers/getSetServerSession";
 import { User } from "../../helpers/User";
+import { requestClientInfo } from "../../helpers/requestClientInfo";
+import { generatePasswordHash } from "../../helpers/generatePasswordHash";
+import { sendPasswordResetEmail } from "../../helpers/sendPasswordResetEmail";
+import { pruneLoginAttempts } from "../../helpers/pruneLoginAttempts";
 import superjson from "superjson";
+
+const LOCKOUT_MESSAGE = "Zu viele fehlgeschlagene Anmeldeversuche. Aus Sicherheitsgründen wurde dein Passwort zurückgesetzt. Wir haben dir eine E-Mail zum Festlegen eines neuen Passworts geschickt.";
+const LOCKOUT_THRESHOLD = 5;
+const LOCKOUT_WINDOW_MINUTES = 30;
 
 export async function handle(request: Request) {
   try {
     const json = superjson.parse(await request.text());
-    const { email, password } = schema.parse(json);
+    const { email, password, clientPlatform } = schema.parse(json);
 
     // Normalize email to lowercase for consistent handling
     const normalizedEmail = email.toLowerCase();
     const now = new Date();
+    const { ipAddress, userAgent } = requestClientInfo(request);
 
     const result = await db.transaction().execute(async (trx) => {
       // Use PostgreSQL advisory lock to serialize access per email
@@ -55,6 +64,10 @@ export async function handle(request: Request) {
             email: normalizedEmail,
             attemptedAt: now,
             success: false,
+            ipAddress,
+            userAgent,
+            clientPlatform: clientPlatform ?? null,
+            loginSource: "web",
           })
           .execute();
 
@@ -74,8 +87,70 @@ export async function handle(request: Request) {
             email: normalizedEmail,
             attemptedAt: now,
             success: false,
+            ipAddress,
+            userAgent,
+            clientPlatform: clientPlatform ?? null,
+            loginSource: "web",
           })
           .execute();
+
+        const failedAttemptsWindow = new Date(
+          now.getTime() - LOCKOUT_WINDOW_MINUTES * 60 * 1000
+        );
+
+        const failedAttempts = await trx
+          .selectFrom("loginAttempts")
+          .select(sql<number>`count(*)::int`.as("count"))
+          .where(sql`LOWER(email)`, "=", normalizedEmail)
+          .where("success", "=", false)
+          .where("attemptedAt", ">=", failedAttemptsWindow)
+          .executeTakeFirstOrThrow();
+
+        const failedCount = failedAttempts.count;
+
+        if (failedCount >= LOCKOUT_THRESHOLD) {
+          console.log(
+            `Lockout threshold reached for ${normalizedEmail}: ${failedCount} failed attempts.`
+          );
+
+          const recentLockoutToken = await trx
+            .selectFrom("passwordResetTokens")
+            .select("id")
+            .where("userId", "=", user.id)
+            .where("used", "=", false)
+            .where("createdAt", ">=", failedAttemptsWindow)
+            .limit(1)
+            .execute();
+
+          if (recentLockoutToken.length > 0) {
+            console.log(
+              `Lockout already triggered recently for user ${user.id}, skipping new reset.`
+            );
+            return {
+              type: "lockout" as const,
+            };
+          }
+
+          const randomSecret = randomBytes(32).toString("hex");
+          const newPasswordHash = await generatePasswordHash(randomSecret);
+
+          await trx
+            .updateTable("userPasswords")
+            .set({ passwordHash: newPasswordHash })
+            .where("userId", "=", user.id)
+            .execute();
+
+          console.log(
+            `Password invalidated for user ${user.id} due to too many failed attempts.`
+          );
+
+          return {
+            type: "lockout_triggered" as const,
+            userId: user.id,
+            email: user.email,
+            firstName: user.firstName,
+          };
+        }
 
         return {
           type: "auth_failed" as const,
@@ -89,6 +164,11 @@ export async function handle(request: Request) {
           email: normalizedEmail,
           attemptedAt: now,
           success: true,
+          userId: user.id,
+          ipAddress,
+          userAgent,
+          clientPlatform: clientPlatform ?? null,
+          loginSource: "web",
         })
         .execute();
 
@@ -116,6 +196,37 @@ export async function handle(request: Request) {
         sessionCreatedAt: now,
       };
     });
+ 
+   // Prune login attempts to keep only the newest 100 rows
+   await pruneLoginAttempts();
+
+    if (result.type === "lockout" || result.type === "lockout_triggered") {
+      if (result.type === "lockout_triggered") {
+        try {
+          await sendPasswordResetEmail({
+            userId: result.userId,
+            email: result.email,
+            firstName: result.firstName,
+            origin: new URL(request.url).origin,
+            reason: "too_many_failed_attempts",
+          });
+          console.log(`Lockout reset email sent to ${result.email}.`);
+        } catch (emailError) {
+          console.error(
+            `Failed to send lockout reset email to ${result.email}:`,
+            emailError
+          );
+        }
+      }
+
+      return new Response(
+        superjson.stringify({ message: LOCKOUT_MESSAGE }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
 
     if (result.type === "auth_failed") {
       return new Response(

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { isNativeApp } from "./isNativeApp";
 
 export type CookieCategory = "analytics" | "marketing";
 
@@ -16,6 +17,7 @@ export interface CookieConsentContextType {
   updateConsent: (category: CookieCategory, value: boolean) => void;
   saveConsent: () => void;
   resetConsent: () => void;
+  isNativeApp: boolean;
 }
 
 const STORAGE_KEY = "biber_cookie_consent";
@@ -31,9 +33,19 @@ const CookieConsentContext = createContext<CookieConsentContextType | undefined>
 export const CookieConsentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [consentGiven, setConsentGiven] = useState(false);
   const [consent, setConsent] = useState<CookieConsentState>(defaultConsent);
+  const [isNativeState, setIsNativeState] = useState(false);
 
   // Initialize from localStorage on mount
   useEffect(() => {
+    const native = isNativeApp();
+    setIsNativeState(native);
+
+    if (native) {
+      setConsent({ necessary: true, analytics: true, marketing: true });
+      setConsentGiven(true);
+      return;
+    }
+
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
@@ -51,6 +63,7 @@ export const CookieConsentProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const persistConsent = useCallback((newConsent: CookieConsentState, isGiven: boolean) => {
+    if (isNativeApp()) return;
     try {
       localStorage.setItem(
         STORAGE_KEY,
@@ -112,6 +125,7 @@ export const CookieConsentProvider: React.FC<{ children: React.ReactNode }> = ({
         updateConsent,
         saveConsent,
         resetConsent,
+        isNativeApp: isNativeState,
       }}
     >
       {children}

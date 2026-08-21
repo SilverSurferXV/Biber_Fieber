@@ -1,3 +1,5 @@
+import { companyCarDeduction } from "./companyCarDeduction";
+
 export interface GutschriftData {
   driverName: string;
   driverEmail: string;
@@ -13,8 +15,9 @@ export interface GutschriftData {
   blockEnd: Date;
   stopCompensation: number;
   packagingCompensation: number;
-  dailyEarnings: { date: string; stopsCount: number; earnings: number }[];
+  dailyEarnings: { date: string; stopsCount: number; companyCarStops?: number; grossEarnings?: number; carDeduction?: number; earnings: number }[];
   packagingDays: { date: string }[];
+  totalCarDeduction?: number;
 }
 
 const formatCurrency = (value: number): string => {
@@ -66,6 +69,7 @@ export const generateGutschriftPdf = async (data: GutschriftData) => {
     packagingCompensation,
     dailyEarnings,
     packagingDays,
+    totalCarDeduction = 0,
   } = data;
 
   const creationDate = new Intl.DateTimeFormat("de-DE", {
@@ -100,10 +104,13 @@ export const generateGutschriftPdf = async (data: GutschriftData) => {
 
   // Prepare Stopvergütung Table
   let totalStopEarnings = 0;
+  const totalCompanyCarStops = dailyEarnings.reduce((s, d) => s + (d.companyCarStops || 0), 0);
+  
   const stopRows: any[][] = [
     [
       { text: "Datum", style: "tableHeader" },
       { text: "Anzahl Stops", style: "tableHeader", alignment: "center" },
+      { text: "davon Firmenwagen", style: "tableHeader", alignment: "center" },
       { text: "Betrag", style: "tableHeader", alignment: "right" },
     ],
   ];
@@ -114,12 +121,14 @@ export const generateGutschriftPdf = async (data: GutschriftData) => {
       stopRows.push([
         { text: formatDateWithWeekday(day.date) },
         { text: day.stopsCount.toString(), alignment: "center" },
+        { text: day.companyCarStops ? day.companyCarStops.toString() : "-", alignment: "center" },
         { text: formatCurrency(day.earnings), alignment: "right" },
       ]);
     });
   } else {
     stopRows.push([
-      { text: "Keine Stops in diesem Zeitraum", colSpan: 3, italics: true, color: "#666" },
+      { text: "Keine Stops in diesem Zeitraum", colSpan: 4, italics: true, color: "#666" },
+      {},
       {},
       {},
     ]);
@@ -127,7 +136,8 @@ export const generateGutschriftPdf = async (data: GutschriftData) => {
 
   // Subtotal Stopvergütung
   stopRows.push([
-    { text: "Zwischensumme Stopvergütung", bold: true, colSpan: 2 },
+    { text: "Zwischensumme Stopvergütung", bold: true, colSpan: 3 },
+    {},
     {},
     { text: formatCurrency(totalStopEarnings), alignment: "right", bold: true },
   ]);
@@ -173,11 +183,32 @@ export const generateGutschriftPdf = async (data: GutschriftData) => {
       { text: "Summe Stopvergütung:", margin: [0, 2, 0, 2] },
       { text: formatCurrency(totalStopEarnings), alignment: "right", margin: [0, 2, 0, 2] }
     ],
+  ];
+
+  if (totalCarDeduction > 0) {
+    const stopGrossEarnings = totalStopEarnings + totalCarDeduction;
+    summaryBody.splice(0, 1,
+      [
+        { text: "Stopvergütung brutto:", margin: [0, 2, 0, 2] },
+        { text: formatCurrency(stopGrossEarnings), alignment: "right", margin: [0, 2, 0, 2] }
+      ],
+      [
+        { text: `Abzug Firmenwagen (${formatCurrency(companyCarDeduction)} × ${totalCompanyCarStops} Stops):`, margin: [0, 2, 0, 2] },
+        { text: `-${formatCurrency(totalCarDeduction)}`, alignment: "right", margin: [0, 2, 0, 2] }
+      ],
+      [
+        { text: "Summe Stopvergütung:", bold: true, margin: [0, 2, 0, 2] },
+        { text: formatCurrency(totalStopEarnings), alignment: "right", bold: true, margin: [0, 2, 0, 2] }
+      ]
+    );
+  }
+
+  summaryBody.push(
     [
       { text: "Summe Verpackungsvergütung:", margin: [0, 2, 0, 2] },
       { text: formatCurrency(totalPackagingEarnings), alignment: "right", margin: [0, 2, 0, 2] }
     ]
-  ];
+  );
 
   if (vatEligible) {
     const vatAmount = grandTotal * 0.07;
@@ -203,6 +234,29 @@ export const generateGutschriftPdf = async (data: GutschriftData) => {
       { text: formatCurrency(grandTotal), bold: true, fontSize: 14, alignment: "right", margin: [0, 10, 0, 0] }
     ]);
   }
+
+  const stopsSectionContent: any[] = [
+    { text: `Stopvergütung (${formatCurrency(stopCompensation)} / Stop)`, style: "sectionHeader" },
+  ];
+
+  if (totalCompanyCarStops > 0) {
+    stopsSectionContent.push({
+      text: `Abzug Firmenwagen: ${formatCurrency(companyCarDeduction)} pro Stop`,
+      fontSize: 9,
+      color: "#666",
+      margin: [0, 0, 0, 5],
+    });
+  }
+
+  stopsSectionContent.push({
+    table: {
+      headerRows: 1,
+      widths: ["*", "auto", "auto", "auto"],
+      body: stopRows,
+    },
+    layout: "lightHorizontalLines",
+    margin: [0, 5, 0, 20],
+  });
 
   const content: any[] = [
         // Sender Info (top left)
@@ -253,16 +307,7 @@ export const generateGutschriftPdf = async (data: GutschriftData) => {
     },
 
     // Stops Section
-    { text: `Stopvergütung (${formatCurrency(stopCompensation)} / Stop)`, style: "sectionHeader" },
-    {
-      table: {
-        headerRows: 1,
-        widths: ["*", "auto", "auto"],
-        body: stopRows,
-      },
-      layout: "lightHorizontalLines",
-      margin: [0, 5, 0, 20],
-    },
+    ...stopsSectionContent,
 
     // Packaging Section
     { text: `Verpackungsvergütung (${formatCurrency(packagingCompensation)} / Tag)`, style: "sectionHeader" },

@@ -89,13 +89,50 @@ export const GlobalContextProviders = ({
   }, []);
 
   useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/_api/sw", { scope: "/" })
-        .catch((err) => {
-          console.log("SW registration failed:", err);
-        });
-    }
+    const cleanupSW = async () => {
+      if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+        try {
+          let cleanedUp = false;
+
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (const registration of registrations) {
+            const worker =
+              registration.active ?? registration.waiting ?? registration.installing;
+            const scriptURL = worker?.scriptURL || "";
+            if (!scriptURL.includes("floot-push-sw")) {
+              await registration.unregister();
+              cleanedUp = true;
+            }
+          }
+
+          if ("caches" in window) {
+            const cacheNames = await caches.keys();
+            for (const name of cacheNames) {
+              if (name.startsWith("biber-fieber")) {
+                await caches.delete(name);
+                cleanedUp = true;
+              }
+            }
+          }
+
+          if (cleanedUp) {
+            console.log("Service worker and caches cleaned up.");
+            try {
+              const flag = "sw_cleanup_reloaded";
+              if (!sessionStorage.getItem(flag)) {
+                sessionStorage.setItem(flag, "true");
+                window.location.reload();
+              }
+            } catch (e) {
+              // Ignore sessionStorage errors
+            }
+          }
+        } catch (error) {
+          console.error("Failed to cleanup service worker:", error);
+        }
+      }
+    };
+    cleanupSW();
   }, []);
 
   return (

@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from './Dialog';
 import { generateGutschriftPdf, GutschriftData } from '../helpers/generateGutschriftPdf';
 import { useAdminDriverEarnings, useUpdateDriverCompensation } from '../helpers/useAdminDriverEarnings';
 import { useAdminCreditNotes, useSaveCreditNote } from '../helpers/useDriverCreditNotes';
+import { companyCarDeduction } from '../helpers/companyCarDeduction';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './Select';
 import { Badge } from './Badge';
 import { Input } from './Input';
@@ -124,14 +125,19 @@ export const AdminDriverEarnings = () => {
       await generateGutschriftPdf(payload);
       
       const totalStopEarnings = filteredDaily.reduce((sum, d) => sum + d.earnings, 0);
+      const totalCarDeduction = filteredDaily.reduce((sum, d) => sum + (d.carDeduction || 0), 0);
+      
       console.log('[DEBUG] detailData being sent:', JSON.stringify({
         driverName: payload.driverName,
         driverEmail: payload.driverEmail,
         vatEligible: payload.vatEligible,
         dailyEarningsCount: filteredDaily.length,
         packagingDaysCount: filteredPackaging.length,
+        totalCarDeduction
       }));
       const totalPackagingEarnings = filteredPackaging.length * earningsData.packagingCompensation;
+      
+      payload.totalCarDeduction = totalCarDeduction;
       const grandTotal = totalStopEarnings + totalPackagingEarnings;
       const vatEligible = selectedDriver.vatEligible ?? false;
       const vatAmount = vatEligible ? grandTotal * 0.07 : null;
@@ -147,6 +153,7 @@ export const AdminDriverEarnings = () => {
         packagingCompensation: earningsData.packagingCompensation,
         totalStopEarnings,
         totalPackagingEarnings,
+        totalCarDeduction,
         totalAmount: vatEligible ? grandTotal + grandTotal * 0.07 : grandTotal,
         vatAmount,
         detailData: {
@@ -160,8 +167,16 @@ export const AdminDriverEarnings = () => {
           invoiceTaxId: payload.invoiceTaxId ?? null,
           invoiceTaxNumber: payload.invoiceTaxNumber ?? null,
           vatEligible: payload.vatEligible,
-          dailyEarnings: filteredDaily,
+          dailyEarnings: filteredDaily.map(d => ({
+            date: d.date,
+            stopsCount: d.stopsCount,
+            companyCarStops: d.companyCarStops,
+            grossEarnings: d.grossEarnings,
+            carDeduction: d.carDeduction,
+            earnings: d.earnings
+          })),
           packagingDays: filteredPackaging,
+          totalCarDeduction,
         },
       });
 
@@ -225,30 +240,36 @@ export const AdminDriverEarnings = () => {
     const { blockIndex: currentBlockIndex, blockStart: currentBlockStart, blockEnd: currentBlockEnd } = getBlockInfo(now.toISOString());
 
     let blockStops = 0;
+    let blockStopEarnings = 0;
     let monthStops = 0;
+    let monthStopEarnings = 0;
     let totalStops = 0;
 
     let blockPackaging = 0;
     let monthPackaging = 0;
     let totalPackaging = 0;
 
-    const allDaysMap = new Map<string, { date: string; stopsCount: number; stopEarnings: number; isPackaging: boolean; pkgEarnings: number }>();
+    const allDaysMap = new Map<string, { date: string; stopsCount: number; companyCarStops: number; carDeduction: number; stopEarnings: number; isPackaging: boolean; pkgEarnings: number }>();
 
     earningsData.dailyEarnings.forEach((day) => {
       totalStops += day.stopsCount;
       const d = new Date(day.date);
       if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
         monthStops += day.stopsCount;
+        monthStopEarnings += day.earnings;
       }
       
       const bInfo = getBlockInfo(day.date);
       if (bInfo.blockIndex === currentBlockIndex) {
         blockStops += day.stopsCount;
+        blockStopEarnings += day.earnings;
       }
       
       allDaysMap.set(day.date, {
         date: day.date,
         stopsCount: day.stopsCount,
+        companyCarStops: day.companyCarStops || 0,
+        carDeduction: day.carDeduction || 0,
         stopEarnings: day.earnings,
         isPackaging: false,
         pkgEarnings: 0
@@ -275,6 +296,8 @@ export const AdminDriverEarnings = () => {
         allDaysMap.set(day.date, {
           date: day.date,
           stopsCount: 0,
+          companyCarStops: 0,
+          carDeduction: 0,
           stopEarnings: 0,
           isPackaging: true,
           pkgEarnings: earningsData.packagingCompensation
@@ -303,7 +326,7 @@ export const AdminDriverEarnings = () => {
             </div>
             <div className={styles.cardBody}>
               <div className={styles.cardValue}>{blockStops}</div>
-              <div className={styles.cardSubvalue}>{formatCurrency(blockStops * earningsData.stopCompensation)}</div>
+              <div className={styles.cardSubvalue}>{formatCurrency(blockStopEarnings)}</div>
             </div>
           </div>
 
@@ -317,7 +340,7 @@ export const AdminDriverEarnings = () => {
             </div>
             <div className={styles.cardBody}>
               <div className={styles.cardValue}>{monthStops}</div>
-              <div className={styles.cardSubvalue}>{formatCurrency(monthStops * earningsData.stopCompensation)}</div>
+              <div className={styles.cardSubvalue}>{formatCurrency(monthStopEarnings)}</div>
             </div>
           </div>
 
@@ -422,6 +445,7 @@ export const AdminDriverEarnings = () => {
                 <tr>
                   <th>Datum</th>
                   <th className={styles.alignRight}>Stops</th>
+                  <th className={styles.alignCenter}>Firmenwagen</th>
                   <th className={styles.alignCenter}>Verpackung</th>
                   <th className={styles.alignRight}>Verdienst / Pack</th>
                   <th className={styles.alignRight}>Verdienst / Stops</th>
@@ -433,6 +457,7 @@ export const AdminDriverEarnings = () => {
                   <tr key={day.date}>
                     <td>{formatDateWithDay(day.date)}</td>
                     <td className={styles.alignRight}>{day.stopsCount}</td>
+                    <td className={styles.alignCenter}>{day.companyCarStops > 0 ? day.companyCarStops : "—"}</td>
                     <td className={styles.alignCenter}>{day.isPackaging ? "✓" : "—"}</td>
                     <td className={styles.alignRight}>{formatCurrency(day.pkgEarnings)}</td>
                     <td className={styles.alignRight}>{formatCurrency(day.stopEarnings)}</td>
@@ -564,11 +589,28 @@ export const AdminDriverEarnings = () => {
         <DialogTitle>Abrechnungsblock wählen</DialogTitle>
       </DialogHeader>
       <div className={styles.dialogBlockList}>
-        {availableBlocks.map(block => (
-          <Button key={block.blockIndex} variant="outline" onClick={() => handleGenerateGutschrift(block)}>
-            {block.label} {!block.hasData && <span className={styles.emptyBlockText}>(Keine Daten)</span>}
-          </Button>
-        ))}
+        {availableBlocks.map(block => {
+          let blockDeduction = 0;
+          if (earningsData) {
+            const blockDays = earningsData.dailyEarnings.filter(
+              d => getBlockInfo(d.date).blockIndex === block.blockIndex
+            );
+            blockDeduction = blockDays.reduce((sum, d) => sum + (d.carDeduction || 0), 0);
+          }
+          
+          return (
+            <div key={block.blockIndex} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <Button variant="outline" onClick={() => handleGenerateGutschrift(block)}>
+                {block.label} {!block.hasData && <span className={styles.emptyBlockText}>(Keine Daten)</span>}
+              </Button>
+              {blockDeduction > 0 && (
+                <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', alignSelf: 'flex-end' }}>
+                  Abzug Firmenwagen ({formatCurrency(companyCarDeduction)} / Stop): -{formatCurrency(blockDeduction)}
+                </span>
+              )}
+            </div>
+          );
+        })}
         {availableBlocks.length === 0 && (
           <p className={styles.dialogEmptyText}>
             Keine Abrechnungsblöcke verfügbar.

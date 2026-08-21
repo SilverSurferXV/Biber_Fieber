@@ -73,7 +73,7 @@ export async function handle(request: Request) {
     // Verify the driver is assigned to this postcode today and get packer info
     const assignment = await db
       .selectFrom("zoneDriverAssignments")
-      .select(["packer", "driverId"])
+      .select(["packer", "driverId", "carType"])
       .where("driverId", "=", user.id)
       .where("dateKey", "=", todayStr)
       .where("postcode", "=", orderData.postcode)
@@ -101,9 +101,10 @@ export async function handle(request: Request) {
     await db.transaction().execute(async (trx) => {
       const updateResult = await trx
         .updateTable("orders")
-        .set({
+       .set({
           status: "delivered",
           deliveryDriverId: user.id,
+         deliveryCarType: assignment.carType,
           packerDriverId: packerDriverId,
         })
         .where("id", "=", result.orderId)

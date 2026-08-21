@@ -3,6 +3,7 @@ import superjson from "superjson";
 import { db } from '../../../helpers/db';
 import { getServerUserSession } from '../../../helpers/getServerUserSession';
 import { sql } from "kysely";
+import { computeDriverStopEarnings } from '../../../helpers/computeDriverStopEarnings';
 import { sendMailjetEmail } from '../../../helpers/sendMailjetEmail';
 import { generateGutschriftPdfBuffer } from '../../../helpers/generateGutschriftPdfBuffer';
 import { replaceTemplateVars } from '../../../helpers/replaceTemplateVars';
@@ -66,25 +67,22 @@ export async function handle(request: Request) {
         .filter(Boolean)
         .join(" ") || driverProfile.email;
 
-      // 2. Query daily stop earnings for the block period
-      const dailyEarningsRows = await db
-        .selectFrom("orders")
-        .select([
-          sql<string>`COALESCE(delivery_date::date, created_at::date)::text`.as("date"),
-          sql<number>`COUNT(DISTINCT id)::int`.as("stopsCount"),
-        ])
-        .where("deliveryDriverId", "=", data.driverId)
-        .where("status", "=", "delivered")
-        .where(sql`COALESCE(delivery_date::date, created_at::date) >= ${data.blockStart}::date`)
-        .where(sql`COALESCE(delivery_date::date, created_at::date) <= ${data.blockEnd}::date`)
-        .groupBy(sql`COALESCE(delivery_date::date, created_at::date)`)
-        .orderBy(sql`COALESCE(delivery_date::date, created_at::date)`, "asc")
-        .execute();
+      // 2. Compute daily stop earnings including company car deductions
+      const stopEarningsResult = await computeDriverStopEarnings({
+        driverId: data.driverId,
+        stopCompensation: data.stopCompensation,
+        from: data.blockStart,
+        to: data.blockEnd,
+        orderDirection: "asc",
+      });
 
-      const dailyEarnings = dailyEarningsRows.map((row) => ({
-        date: row.date,
-        stopsCount: row.stopsCount ?? 0,
-        earnings: (row.stopsCount ?? 0) * data.stopCompensation,
+      const dailyEarnings = stopEarningsResult.dailyEarnings.map(day => ({
+        date: day.date,
+        stopsCount: day.stopsCount,
+        companyCarStops: day.companyCarStops,
+        grossEarnings: day.grossEarnings,
+        carDeduction: day.carDeduction,
+        earnings: day.earnings,
       }));
 
       // 3. Query packaging days for the block period
@@ -117,7 +115,13 @@ export async function handle(request: Request) {
         vatEligible: driverProfile.vatEligible,
         dailyEarnings,
         packagingDays,
+        totalCarDeduction: stopEarningsResult.totalCarDeduction,
       };
+
+      // If the client didn't pass a top-level totalCarDeduction, update it from the auto-generated result
+      if (!data.totalCarDeduction) {
+        data.totalCarDeduction = stopEarningsResult.totalCarDeduction;
+      }
 
       console.log(
         `[credit-note/save] Auto-generated detailData for driver ${data.driverId}: ${dailyEarnings.length} delivery days, ${packagingDays.length} packaging days.`
@@ -148,6 +152,7 @@ export async function handle(request: Request) {
           totalStopEarnings: data.totalStopEarnings,
           totalPackagingEarnings: data.totalPackagingEarnings,
           totalAmount: data.totalAmount,
+          totalCarDeduction: data.totalCarDeduction,
           vatAmount: data.vatAmount,
           detailData: JSON.stringify(resolvedDetailData),
           status: "pending", // Reset status to pending on update
@@ -172,6 +177,7 @@ export async function handle(request: Request) {
           totalStopEarnings: data.totalStopEarnings,
           totalPackagingEarnings: data.totalPackagingEarnings,
           totalAmount: data.totalAmount,
+          totalCarDeduction: data.totalCarDeduction,
           vatAmount: data.vatAmount,
           detailData: JSON.stringify(resolvedDetailData),
           status: "pending",
@@ -213,6 +219,7 @@ export async function handle(request: Request) {
           packagingCompensation: data.packagingCompensation,
           dailyEarnings: detail.dailyEarnings,
           packagingDays: detail.packagingDays,
+          totalCarDeduction: detail.totalCarDeduction ?? data.totalCarDeduction,
         });
 
         const driverFullName =

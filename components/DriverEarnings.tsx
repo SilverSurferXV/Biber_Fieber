@@ -5,6 +5,7 @@ import { Spinner } from './Spinner';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from './Sheet';
 import { Button } from './Button';
 import { DriverCreditNotes } from './DriverCreditNotes';
+import { companyCarDeduction } from '../helpers/companyCarDeduction';
 import styles from './DriverEarnings.module.css';
 
 /**
@@ -72,9 +73,9 @@ export const DriverEarnings: React.FC = () => {
   let monthPackaging = 0;
   let totalPackaging = 0;
 
-  type BlockData = { stops: number; earnings: number; startDate: Date; endDate: Date };
+  type BlockData = { stops: number; companyCarStops: number; carDeduction: number; earnings: number; startDate: Date; endDate: Date };
   type PkgBlockData = { count: number; earnings: number; startDate: Date; endDate: Date };
-  type MonthData = { key: string, label: string; year: number; month: number; stops: number; earnings: number };
+  type MonthData = { key: string, label: string; year: number; month: number; stops: number; companyCarStops: number; carDeduction: number; earnings: number };
   type PkgMonthData = { key: string, label: string; year: number; month: number; count: number; earnings: number };
   
   const blocks: Record<number, BlockData> = {};
@@ -82,7 +83,10 @@ export const DriverEarnings: React.FC = () => {
   const months: Record<string, MonthData> = {};
   const pkgMonths: Record<string, PkgMonthData> = {};
 
-  const allDaysMap = new Map<string, { date: string; stopsCount: number; stopEarnings: number; isPackaging: boolean; pkgEarnings: number }>();
+  let monthStopEarnings = 0;
+  let blockStopEarnings = 0;
+
+  const allDaysMap = new Map<string, { date: string; stopsCount: number; companyCarStops: number; stopEarnings: number; isPackaging: boolean; pkgEarnings: number }>();
 
   data.dailyEarnings.forEach((day) => {
     totalStops += day.stopsCount;
@@ -90,22 +94,28 @@ export const DriverEarnings: React.FC = () => {
     const d = new Date(day.date);
     if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
       monthStops += day.stopsCount;
+      monthStopEarnings += day.earnings;
     }
     
     const bInfo = getBlockInfo(day.date);
     if (bInfo.blockIndex === currentBlockIndex) {
       blockStops += day.stopsCount;
+      blockStopEarnings += day.earnings;
     }
     
     if (!blocks[bInfo.blockIndex]) {
       blocks[bInfo.blockIndex] = {
         stops: 0,
+        companyCarStops: 0,
+        carDeduction: 0,
         earnings: 0,
         startDate: bInfo.blockStart,
         endDate: bInfo.blockEnd,
       };
     }
     blocks[bInfo.blockIndex].stops += day.stopsCount;
+    blocks[bInfo.blockIndex].companyCarStops += (day.companyCarStops || 0);
+    blocks[bInfo.blockIndex].carDeduction += (day.carDeduction || 0);
     blocks[bInfo.blockIndex].earnings += day.earnings;
 
     const yearMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
@@ -117,15 +127,20 @@ export const DriverEarnings: React.FC = () => {
         year: d.getFullYear(),
         month: d.getMonth(),
         stops: 0,
+        companyCarStops: 0,
+        carDeduction: 0,
         earnings: 0,
       };
     }
     months[yearMonth].stops += day.stopsCount;
+    months[yearMonth].companyCarStops += (day.companyCarStops || 0);
+    months[yearMonth].carDeduction += (day.carDeduction || 0);
     months[yearMonth].earnings += day.earnings;
 
     allDaysMap.set(day.date, {
       date: day.date,
       stopsCount: day.stopsCount,
+      companyCarStops: day.companyCarStops || 0,
       stopEarnings: day.earnings,
       isPackaging: false,
       pkgEarnings: 0
@@ -179,6 +194,7 @@ export const DriverEarnings: React.FC = () => {
       allDaysMap.set(day.date, {
         date: day.date,
         stopsCount: 0,
+        companyCarStops: 0,
         stopEarnings: 0,
         isPackaging: true,
         pkgEarnings: data.packagingCompensation
@@ -221,6 +237,11 @@ export const DriverEarnings: React.FC = () => {
           <div className={styles.compensationInfo}>
             Stopvergütung: <strong>{formatCurrency(data.stopCompensation)} / Stop</strong>
           </div>
+          {data.totalCompanyCarStops != null && data.totalCompanyCarStops > 0 && (
+            <div className={styles.compensationInfo} style={{ backgroundColor: 'color-mix(in srgb, var(--warning) 15%, var(--surface))', color: 'var(--warning)' }}>
+              Firmenwagen-Abzug: <strong>-{formatCurrency(companyCarDeduction)} / Stop</strong>
+            </div>
+          )}
           <div className={styles.compensationInfo}>
             Verpackungsvergütung: <strong>{formatCurrency(data.packagingCompensation)} / Tag</strong>
           </div>
@@ -244,7 +265,7 @@ export const DriverEarnings: React.FC = () => {
           </div>
           <div className={styles.cardBody}>
             <div className={styles.cardValue}>{blockStops}</div>
-            <div className={styles.cardSubvalue}>{formatCurrency(blockStops * data.stopCompensation)}</div>
+            <div className={styles.cardSubvalue}>{formatCurrency(blockStopEarnings)}</div>
           </div>
         </button>
 
@@ -262,7 +283,7 @@ export const DriverEarnings: React.FC = () => {
           </div>
           <div className={styles.cardBody}>
             <div className={styles.cardValue}>{monthStops}</div>
-            <div className={styles.cardSubvalue}>{formatCurrency(monthStops * data.stopCompensation)}</div>
+            <div className={styles.cardSubvalue}>{formatCurrency(monthStopEarnings)}</div>
           </div>
         </button>
 
@@ -378,6 +399,7 @@ export const DriverEarnings: React.FC = () => {
                 <tr>
                   <th>Datum</th>
                   <th className={styles.alignRight}>Stops</th>
+                  <th className={styles.alignCenter}>Firmenwagen</th>
                   <th className={styles.alignCenter}>Verpackung</th>
                   <th className={styles.alignRight}>Verdienst / Pack</th>
                   <th className={styles.alignRight}>Verdienst / Stops</th>
@@ -389,6 +411,7 @@ export const DriverEarnings: React.FC = () => {
                   <tr key={day.date}>
                     <td>{formatDateWithDay(day.date)}</td>
                     <td className={styles.alignRight}>{day.stopsCount}</td>
+                    <td className={styles.alignCenter}>{day.companyCarStops > 0 ? day.companyCarStops : "—"}</td>
                     <td className={styles.alignCenter}>{day.isPackaging ? "✓" : "—"}</td>
                     <td className={styles.alignRight}>{formatCurrency(day.pkgEarnings)}</td>
                     <td className={styles.alignRight}>{formatCurrency(day.stopEarnings)}</td>
@@ -426,19 +449,25 @@ export const DriverEarnings: React.FC = () => {
                   </thead>
                   <tbody>
                     {sortedBlocks.map((b) => (
-                      <tr 
-                        key={b.index} 
-                        className={b.index === currentBlockIndex ? styles.highlightRow : undefined}
-                      >
-                        <td>
-                          {formatDate(b.startDate)} - {formatDate(b.endDate)}
-                          {b.index === currentBlockIndex && (
-                            <span className={styles.currentBadge}>Aktuell</span>
-                          )}
-                        </td>
-                        <td className={styles.alignRight}>{b.stops}</td>
-                        <td className={styles.alignRight}>{formatCurrency(b.earnings)}</td>
-                      </tr>
+                      <React.Fragment key={b.index}>
+                        <tr className={b.index === currentBlockIndex ? styles.highlightRow : undefined}>
+                          <td>
+                            {formatDate(b.startDate)} - {formatDate(b.endDate)}
+                            {b.index === currentBlockIndex && (
+                              <span className={styles.currentBadge}>Aktuell</span>
+                            )}
+                          </td>
+                          <td className={styles.alignRight}>{b.stops}</td>
+                          <td className={styles.alignRight}>{formatCurrency(b.earnings)}</td>
+                        </tr>
+                        {b.carDeduction > 0 && (
+                          <tr className={b.index === currentBlockIndex ? styles.highlightRow : undefined}>
+                            <td colSpan={3} style={{ borderTop: 'none', paddingTop: 0, paddingBottom: '0.5rem', color: 'var(--muted-foreground)', fontSize: '0.8rem', textAlign: 'right' }}>
+                              Abzug Firmenwagen: -{formatCurrency(b.carDeduction)}
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
                     ))}
                   </tbody>
                   <tfoot>
@@ -488,19 +517,25 @@ export const DriverEarnings: React.FC = () => {
                   </thead>
                   <tbody>
                     {sortedMonths.map((m) => (
-                      <tr 
-                        key={m.key} 
-                        className={(m.month === currentMonth && m.year === currentYear) ? styles.highlightRow : undefined}
-                      >
-                        <td>
-                          {m.label}
-                          {(m.month === currentMonth && m.year === currentYear) && (
-                            <span className={styles.currentBadge}>Aktuell</span>
-                          )}
-                        </td>
-                        <td className={styles.alignRight}>{m.stops}</td>
-                        <td className={styles.alignRight}>{formatCurrency(m.earnings)}</td>
-                      </tr>
+                      <React.Fragment key={m.key}>
+                        <tr className={(m.month === currentMonth && m.year === currentYear) ? styles.highlightRow : undefined}>
+                          <td>
+                            {m.label}
+                            {(m.month === currentMonth && m.year === currentYear) && (
+                              <span className={styles.currentBadge}>Aktuell</span>
+                            )}
+                          </td>
+                          <td className={styles.alignRight}>{m.stops}</td>
+                          <td className={styles.alignRight}>{formatCurrency(m.earnings)}</td>
+                        </tr>
+                        {m.carDeduction > 0 && (
+                          <tr className={(m.month === currentMonth && m.year === currentYear) ? styles.highlightRow : undefined}>
+                            <td colSpan={3} style={{ borderTop: 'none', paddingTop: 0, paddingBottom: '0.5rem', color: 'var(--muted-foreground)', fontSize: '0.8rem', textAlign: 'right' }}>
+                              Abzug Firmenwagen: -{formatCurrency(m.carDeduction)}
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
                     ))}
                   </tbody>
                   <tfoot>

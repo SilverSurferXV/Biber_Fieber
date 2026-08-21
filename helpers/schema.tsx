@@ -136,6 +136,7 @@ export interface DriverCreditNotes {
   status: Generated<CreditNoteStatus>;
   stopCompensation: Generated<Numeric>;
   totalAmount: Generated<Numeric>;
+  totalCarDeduction: Generated<Numeric | null>;
   totalPackagingEarnings: Generated<Numeric>;
   totalStopEarnings: Generated<Numeric>;
   vatAmount: Numeric | null;
@@ -180,11 +181,28 @@ export interface EmailTemplates {
   updatedAt: Generated<Timestamp | null>;
 }
 
+export interface IpGeolocations {
+  city: string | null;
+  country: string | null;
+  countryCode: string | null;
+  ipAddress: string;
+  latitude: number | null;
+  longitude: number | null;
+  lookupFailed: Generated<boolean>;
+  region: string | null;
+  updatedAt: Generated<Timestamp>;
+}
+
 export interface LoginAttempts {
   attemptedAt: Generated<Timestamp | null>;
+  clientPlatform: string | null;
   email: string;
   id: Generated<number>;
+  ipAddress: string | null;
+  loginSource: string | null;
   success: Generated<boolean | null>;
+  userAgent: string | null;
+  userId: number | null;
 }
 
 export interface NotificationTemplates {
@@ -218,6 +236,7 @@ export interface Orders {
   bibercodePointsCredited: Generated<Numeric | null>;
   createdAt: Generated<Timestamp | null>;
   customerId: number | null;
+  deliveryCarType: string | null;
   deliveryDate: Timestamp | null;
   deliveryDriverId: number | null;
   deliveryFee: Generated<Numeric | null>;
@@ -464,6 +483,7 @@ export interface DB {
   driverTips: DriverTips;
   emailSignatures: EmailSignatures;
   emailTemplates: EmailTemplates;
+  ipGeolocations: IpGeolocations;
   loginAttempts: LoginAttempts;
   notificationTemplates: NotificationTemplates;
   oauthAccessToken: OauthAccessToken;
@@ -495,4 +515,11 @@ export const OrderStatusArrayValues: [OrderStatus, ...OrderStatus[]] = ["cancell
 export const PaymentMethodTypeArrayValues: [PaymentMethodType, ...PaymentMethodType[]] = ["apple_pay","credit_card","gpay","klarna","paypal","points"];
 export const PointTransactionTypeArrayValues: [PointTransactionType, ...PointTransactionType[]] = ["admin_adjustment","bibercode_credit","order_payment","topup"];
 export const CreditNoteStatusArrayValues: [CreditNoteStatus, ...CreditNoteStatus[]] = ["approved_auto","approved_manual","pending"];
+// Table/column names whose snake_case spelling kysely's default CamelCasePlugin
+// cannot recover from the camelCase name used in code (an underscore directly
+// before a digit, e.g. reminder_48h_sent ⇄ reminder48hSent). The db helper's
+// CamelCasePlugin subclass consults this map so those identifiers work in
+// queries. Regenerated on every schema pull.
+export const kyselyIdentifierOverrides: Record<string, string> = {};
+
 // Note: kysely maps the table/column/enum names from snake_case to camelCase and PascalCase. When running SQL statements, make sure to use snake_case, but TypeScript code should use camelCase or PascalCase.

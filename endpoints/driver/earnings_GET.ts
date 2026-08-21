@@ -3,6 +3,7 @@ import superjson from "superjson";
 import { db } from "../../helpers/db";
 import { getServerUserSession } from "../../helpers/getServerUserSession";
 import { sql } from "kysely";
+import { computeDriverStopEarnings } from "../../helpers/computeDriverStopEarnings";
 
 export async function handle(request: Request) {
   try {
@@ -41,21 +42,22 @@ export async function handle(request: Request) {
 
     const totalTipsReceived = parseFloat(String(tipsResult?.totalTips ?? 0));
 
-    // 3. Query delivered orders assigned to this driver, grouped by effective delivery date
-    const aggregatedData = await db
-      .selectFrom("orders")
-      .where("deliveryDriverId", "=", user.id)
-      .where("status", "=", "delivered")
-      .select([
-        sql<string>`COALESCE(delivery_date::date, created_at::date)::text`.as("date"),
-        sql<number>`COUNT(DISTINCT id)::int`.as("stopsCount"),
-      ])
-      .groupBy(sql`COALESCE(delivery_date::date, created_at::date)`)
-      .orderBy(sql`COALESCE(delivery_date::date, created_at::date)`, "desc")
-      .execute();
+    // 3. Compute daily stop earnings including company car deductions
+    const {
+      dailyEarnings,
+      totalStops,
+      totalCompanyCarStops,
+      totalGrossEarnings,
+      totalCarDeduction,
+      totalEarnings,
+    } = await computeDriverStopEarnings({
+      driverId: user.id,
+      stopCompensation,
+      orderDirection: "desc",
+    });
 
-    // 3. Query distinct effective delivery dates where this driver was the packer
-        const packagingDaysData = await db
+    // 4. Query distinct effective delivery dates where this driver was the packer
+    const packagingDaysData = await db
       .selectFrom("orders")
       .select([
         sql<string>`COALESCE(delivery_date::date, created_at::date)::text`.as("date"),
@@ -65,24 +67,6 @@ export async function handle(request: Request) {
       .groupBy(sql`COALESCE(delivery_date::date, created_at::date)`)
       .orderBy(sql`COALESCE(delivery_date::date, created_at::date)`, "desc")
       .execute();
-
-    // 4. Process the daily stop earnings
-    let totalEarnings = 0;
-    let totalStops = 0;
-
-    const dailyEarnings = aggregatedData.map((row) => {
-      const stops = row.stopsCount ?? 0;
-      const earnings = stops * stopCompensation;
-
-      totalStops += stops;
-      totalEarnings += earnings;
-
-      return {
-        date: row.date,
-        stopsCount: stops,
-        earnings,
-      };
-    });
 
     // 5. Process packaging days
     const packagingDays = packagingDaysData.map((row) => ({
@@ -101,6 +85,9 @@ export async function handle(request: Request) {
         dailyEarnings,
         totalEarnings,
         totalStops,
+        totalCompanyCarStops,
+        totalGrossEarnings,
+        totalCarDeduction,
         packagingCompensation,
         packagingDays,
         totalPackagingEarnings,
@@ -116,3 +103,5 @@ export async function handle(request: Request) {
     });
   }
 }
+
+

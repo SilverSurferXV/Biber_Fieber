@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Star } from 'lucide-react';
 import { 
   useUpdateAdminCustomer, 
   useDeleteAdminCustomer, 
@@ -19,6 +19,7 @@ import styles from './AdminCustomerRow.module.css';
 
 export const AdminCustomerRow = ({ customer, showCompanyName }: { customer: any; showCompanyName?: boolean }) => {
   const [expanded, setExpanded] = useState(false);
+  const isNew = customer.createdAt && (new Date().getTime() - new Date(customer.createdAt).getTime()) < 3 * 24 * 60 * 60 * 1000;
   const [editing, setEditing] = useState(false);
   const [adjustOpen, setAdjustOpen] = useState(false);
   const [showDropoffPhoto, setShowDropoffPhoto] = useState(false);
@@ -38,7 +39,12 @@ export const AdminCustomerRow = ({ customer, showCompanyName }: { customer: any;
   return (
     <>
       <tr className={expanded ? styles.expandedRow : ''}>
-        <td>{customer.lastName}, {customer.firstName}</td>
+        <td>
+          <div className={styles.nameCellWrapper}>
+            {isNew && <span title="Neuregistrierung" style={{ display: 'inline-flex' }}><Star className={styles.newBadge} size={14} /></span>}
+            <span>{customer.lastName}, {customer.firstName}</span>
+          </div>
+        </td>
         {showCompanyName && <td>{customer.companyName || '-'}</td>}
         <td>{customer.salutation || '-'}</td>
         <td>{customer.postcode}</td>
@@ -50,6 +56,7 @@ export const AdminCustomerRow = ({ customer, showCompanyName }: { customer: any;
           </div>
         </td>
         <td>{customer.bibercode}</td>
+        <td>{customer.createdAt ? new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' }).format(new Date(customer.createdAt)) : '-'}</td>
         <td>
           <Button size="sm" variant="outline" onClick={() => { setExpanded(!expanded); setEditing(false); }}>
             {expanded ? "Schließen" : "Details"}
@@ -58,7 +65,7 @@ export const AdminCustomerRow = ({ customer, showCompanyName }: { customer: any;
       </tr>
       {expanded && (
         <tr>
-          <td colSpan={showCompanyName ? 8 : 7} className={styles.detailsCell}>
+          <td colSpan={showCompanyName ? 9 : 8} className={styles.detailsCell}>
             <div className={styles.detailsContainer}>
               {editing ? (
                 <CustomerEditForm customer={customer} onCancel={() => setEditing(false)} />

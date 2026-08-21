@@ -27,6 +27,7 @@ import { AdminContactForm } from "../components/AdminContactForm";
 import { AdminSuppliers } from "../components/AdminSuppliers";
 import { AdminNetworkTree } from "../components/AdminNetworkTree";
 import { AdminTranslation } from "../components/AdminTranslation";
+import { AdminLoginHistory } from "../components/AdminLoginHistory";
 import { useMicrosoftUnreadCount } from "../helpers/useMicrosoftEmailsQueries";
 import { Badge } from "../components/Badge";
 import styles from "./admin.module.css";
@@ -88,7 +89,8 @@ export default function Admin() {
               <TabsTrigger value="email-vorlagen">Email Vorlagen</TabsTrigger>
               <TabsTrigger value="spenden">Biber Smile</TabsTrigger>
               <TabsTrigger value="netzwerk-baum">Netzwerk Baum</TabsTrigger>
-              <TabsTrigger value="uebersetzung">Übersetzung</TabsTrigger>
+                            <TabsTrigger value="uebersetzung">Übersetzung</TabsTrigger>
+              <TabsTrigger value="login-history">Login History</TabsTrigger>
             </TabsList>
           </div>
           <div className={styles.mobileTabsWrapper}>
@@ -131,6 +133,9 @@ export default function Admin() {
               <TabsTrigger value="spenden">Biber Smile</TabsTrigger>
               <TabsTrigger value="netzwerk-baum">Netzwerk Baum</TabsTrigger>
               <TabsTrigger value="uebersetzung">Übersetzung</TabsTrigger>
+            </TabsList>
+            <TabsList className={styles.mobileTabsRow}>
+              <TabsTrigger value="login-history">Login History</TabsTrigger>
             </TabsList>
           </div>
         </div>
@@ -210,6 +215,9 @@ export default function Admin() {
           </TabsContent>
           <TabsContent value="uebersetzung">
             <AdminTranslation />
+          </TabsContent>
+          <TabsContent value="login-history">
+            <AdminLoginHistory />
           </TabsContent>
         </div>
       </Tabs>

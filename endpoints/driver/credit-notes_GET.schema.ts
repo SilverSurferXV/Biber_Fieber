@@ -15,8 +15,9 @@ export type DetailData = {
   invoiceTaxId?: string | null;
   invoiceTaxNumber?: string | null;
   vatEligible: boolean;
-  dailyEarnings: { date: string; stopsCount: number; earnings: number }[];
-  packagingDays: { date: string }[];
+ dailyEarnings: { date: string; stopsCount: number; companyCarStops?: number; grossEarnings?: number; carDeduction?: number; earnings: number }[];
+ packagingDays: { date: string }[];
+ totalCarDeduction?: number;
 };
 
 export type DriverCreditNoteItem = {
@@ -26,10 +27,11 @@ export type DriverCreditNoteItem = {
   blockEnd: Date;
   stopCompensation: number;
   packagingCompensation: number;
-  totalStopEarnings: number;
-  totalPackagingEarnings: number;
-  totalAmount: number;
-  vatAmount: number | null;
+ totalStopEarnings: number;
+ totalPackagingEarnings: number;
+ totalAmount: number;
+ totalCarDeduction: number;
+ vatAmount: number | null;
   status: CreditNoteStatus;
   approvedAt: Date | null;
   expiresAt: Date;

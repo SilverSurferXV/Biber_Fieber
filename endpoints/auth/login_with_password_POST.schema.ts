@@ -5,6 +5,7 @@ import superjson from "superjson";
 export const schema = z.object({
   email: z.string().email("Email is required"),
   password: z.string().min(1, "Password is required"),
+  clientPlatform: z.string().max(32).optional(),
 });
 
 export type OutputType = {

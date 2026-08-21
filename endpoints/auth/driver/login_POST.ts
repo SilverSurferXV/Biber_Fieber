@@ -8,16 +8,19 @@ import {
   SessionExpirationSeconds,
 } from "../../../helpers/getSetServerSession";
 import { User } from "../../../helpers/User";
+import { requestClientInfo } from "../../../helpers/requestClientInfo";
+import { pruneLoginAttempts } from "../../../helpers/pruneLoginAttempts";
 import superjson from "superjson";
 
 export async function handle(request: Request) {
   try {
     const json = superjson.parse(await request.text());
-    const { identifier, password } = schema.parse(json);
+    const { identifier, password, clientPlatform } = schema.parse(json);
 
     // Normalize identifier for consistent handling
     const normalizedIdentifier = identifier.toLowerCase().trim();
     const now = new Date();
+    const { ipAddress, userAgent } = requestClientInfo(request);
 
     const result = await db.transaction().execute(async (trx) => {
       // Use PostgreSQL advisory lock to serialize access per identifier
@@ -61,6 +64,10 @@ export async function handle(request: Request) {
             email: normalizedIdentifier, // using identifier as email field for tracking
             attemptedAt: now,
             success: false,
+            ipAddress,
+            userAgent,
+            clientPlatform: clientPlatform ?? null,
+            loginSource: "driver",
           })
           .execute();
 
@@ -80,6 +87,10 @@ export async function handle(request: Request) {
             email: normalizedIdentifier,
             attemptedAt: now,
             success: false,
+            ipAddress,
+            userAgent,
+            clientPlatform: clientPlatform ?? null,
+            loginSource: "driver",
           })
           .execute();
 
@@ -95,6 +106,11 @@ export async function handle(request: Request) {
           email: normalizedIdentifier,
           attemptedAt: now,
           success: true,
+          userId: user.id,
+          ipAddress,
+          userAgent,
+          clientPlatform: clientPlatform ?? null,
+          loginSource: "driver",
         })
         .execute();
 
@@ -122,6 +138,9 @@ export async function handle(request: Request) {
         sessionCreatedAt: now,
       };
     });
+ 
+   // Prune login attempts to keep only the newest 100 rows
+   await pruneLoginAttempts();
 
     if (result.type === "auth_failed") {
       return new Response(

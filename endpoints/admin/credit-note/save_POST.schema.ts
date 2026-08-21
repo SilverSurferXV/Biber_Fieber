@@ -12,6 +12,7 @@ export const schema = z.object({
   totalStopEarnings: z.number(),
   totalPackagingEarnings: z.number(),
   totalAmount: z.number(),
+  totalCarDeduction: z.number().optional().default(0),
   vatAmount: z.number().nullable(),
   detailData: z.object({
     driverName: z.string(),
@@ -24,8 +25,9 @@ export const schema = z.object({
     invoiceTaxId: z.string().nullable().optional(),
     invoiceTaxNumber: z.string().nullable().optional(),
     vatEligible: z.boolean(),
-    dailyEarnings: z.array(z.object({ date: z.string(), stopsCount: z.number(), earnings: z.number() })),
+    dailyEarnings: z.array(z.object({ date: z.string(), stopsCount: z.number(), companyCarStops: z.number().optional(), grossEarnings: z.number().optional(), carDeduction: z.number().optional(), earnings: z.number() })),
     packagingDays: z.array(z.object({ date: z.string() })),
+    totalCarDeduction: z.number().optional(),
   }).optional()
 });
 

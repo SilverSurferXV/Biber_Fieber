@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { useAuth } from '../helpers/useAuth';
+import { getClientPlatform } from '../helpers/getClientPlatform';
 import { useRouteOptimization, LAGER_ALLING_ADDRESS } from '../helpers/useRouteOptimization';
 import { DriverLayout } from '../components/DriverLayout';
 import { DriverAuftraege } from '../components/DriverAuftraege';
@@ -47,8 +48,8 @@ function DriverLoginForm() {
     setError(null);
     setIsLoading(true);
 
-    try {
-      const result = await postDriverLogin(data);
+   try {
+      const result = await postDriverLogin({ ...data, clientPlatform: getClientPlatform() });
       onLogin(result.user);
     } catch (err) {
       console.error("Login error:", err);

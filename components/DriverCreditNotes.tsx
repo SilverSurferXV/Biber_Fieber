@@ -13,6 +13,7 @@ import {
 } from "./Sheet";
 import { generateGutschriftPdf } from "../helpers/generateGutschriftPdf";
 import type { DriverCreditNoteItem } from "../endpoints/driver/credit-notes_GET.schema";
+import { companyCarDeduction } from "../helpers/companyCarDeduction";
 import styles from "./DriverCreditNotes.module.css";
 
 const formatCurrency = (val: number) =>
@@ -86,6 +87,7 @@ export const DriverCreditNotes: React.FC = () => {
         packagingCompensation: selectedNote.packagingCompensation,
         dailyEarnings: d.dailyEarnings,
         packagingDays: d.packagingDays,
+        totalCarDeduction: selectedNote.totalCarDeduction || d.totalCarDeduction || 0,
       });
     } catch (e) {
       console.error('PDF generation failed', e);
@@ -263,6 +265,7 @@ export const DriverCreditNotes: React.FC = () => {
                       <tr>
                         <th>Datum</th>
                         <th className={styles.alignRight}>Anzahl Stops</th>
+                        <th className={styles.alignCenter}>davon Firmenwagen</th>
                         <th className={styles.alignRight}>Betrag</th>
                       </tr>
                     </thead>
@@ -272,14 +275,15 @@ export const DriverCreditNotes: React.FC = () => {
                           <tr key={day.date}>
                             <td>{formatDateWithWeekday(day.date)}</td>
                             <td className={styles.alignRight}>{day.stopsCount}</td>
+                            <td className={styles.alignCenter}>{day.companyCarStops ? day.companyCarStops : "-"}</td>
                             <td className={styles.alignRight}>{formatCurrency(day.earnings)}</td>
                           </tr>
                         ))
                       ) : (
-                        <tr><td colSpan={3} style={{fontStyle:'italic', color:'var(--muted-foreground)'}}>Keine Stops in diesem Zeitraum</td></tr>
+                        <tr><td colSpan={4} style={{fontStyle:'italic', color:'var(--muted-foreground)'}}>Keine Stops in diesem Zeitraum</td></tr>
                       )}
                       <tr className={styles.subtotalRow}>
-                        <td colSpan={2}><strong>Zwischensumme Stopvergütung</strong></td>
+                        <td colSpan={3}><strong>Zwischensumme Stopvergütung</strong></td>
                         <td className={styles.alignRight}><strong>{formatCurrency(selectedNote.totalStopEarnings)}</strong></td>
                       </tr>
                     </tbody>
@@ -319,7 +323,18 @@ export const DriverCreditNotes: React.FC = () => {
                 
                 {/* Summary */}
                 <div className={styles.summaryBlock}>
-                  <div className={styles.summaryRow}><span>Summe Stopvergütung:</span><span>{formatCurrency(selectedNote.totalStopEarnings)}</span></div>
+                  {(selectedNote.totalCarDeduction || 0) > 0 ? (
+                    <>
+                      <div className={styles.summaryRow}><span>Stopvergütung brutto:</span><span>{formatCurrency(selectedNote.totalStopEarnings + selectedNote.totalCarDeduction)}</span></div>
+                      <div className={styles.summaryRow}>
+                        <span>Abzug Firmenwagen ({formatCurrency(companyCarDeduction)} × {selectedNote.detailData.dailyEarnings.reduce((s,d)=>s+(d.companyCarStops||0),0)} Stops):</span>
+                        <span>-{formatCurrency(selectedNote.totalCarDeduction)}</span>
+                      </div>
+                      <div className={styles.summaryRow} style={{fontWeight: 700}}><span>Summe Stopvergütung:</span><span>{formatCurrency(selectedNote.totalStopEarnings)}</span></div>
+                    </>
+                  ) : (
+                    <div className={styles.summaryRow}><span>Summe Stopvergütung:</span><span>{formatCurrency(selectedNote.totalStopEarnings)}</span></div>
+                  )}
                   <div className={styles.summaryRow}><span>Summe Verpackungsvergütung:</span><span>{formatCurrency(selectedNote.totalPackagingEarnings)}</span></div>
                   {selectedNote.vatAmount != null ? (
                     <>
@@ -363,7 +378,15 @@ export const DriverCreditNotes: React.FC = () => {
                 
                 {/* Summary */}
                 <div className={styles.summaryBlock} style={{alignSelf: 'stretch', maxWidth: 'none'}}>
-                  <div className={styles.summaryRow}><span>Summe Stopvergütung:</span><span>{formatCurrency(selectedNote.totalStopEarnings)}</span></div>
+                  {(selectedNote.totalCarDeduction || 0) > 0 ? (
+                    <>
+                      <div className={styles.summaryRow}><span>Stopvergütung brutto:</span><span>{formatCurrency(selectedNote.totalStopEarnings + selectedNote.totalCarDeduction)}</span></div>
+                      <div className={styles.summaryRow}><span>Abzug Firmenwagen:</span><span>-{formatCurrency(selectedNote.totalCarDeduction)}</span></div>
+                      <div className={styles.summaryRow} style={{fontWeight: 700}}><span>Summe Stopvergütung:</span><span>{formatCurrency(selectedNote.totalStopEarnings)}</span></div>
+                    </>
+                  ) : (
+                    <div className={styles.summaryRow}><span>Summe Stopvergütung:</span><span>{formatCurrency(selectedNote.totalStopEarnings)}</span></div>
+                  )}
                   <div className={styles.summaryRow}><span>Summe Verpackungsvergütung:</span><span>{formatCurrency(selectedNote.totalPackagingEarnings)}</span></div>
                   {selectedNote.vatAmount != null ? (
                     <>

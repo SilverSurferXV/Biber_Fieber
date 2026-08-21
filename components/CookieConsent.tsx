@@ -7,7 +7,7 @@ import { CookieIcon, Settings2Icon } from "lucide-react";
 import styles from "./CookieConsent.module.css";
 
 export const CookieConsent: React.FC = () => {
-  const { consentGiven, consent, acceptAll, rejectAll, updateConsent, saveConsent } = useCookieConsent();
+  const { consentGiven, consent, acceptAll, rejectAll, updateConsent, saveConsent, isNativeApp } = useCookieConsent();
   const { t } = useTranslation();
   const [showSettings, setShowSettings] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -17,7 +17,7 @@ export const CookieConsent: React.FC = () => {
     setIsMounted(true);
   }, []);
 
-  if (!isMounted || consentGiven) {
+  if (!isMounted || consentGiven || isNativeApp) {
     return null;
   }
 

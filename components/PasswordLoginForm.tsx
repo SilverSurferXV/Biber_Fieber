@@ -19,6 +19,7 @@ import {
 } from "../endpoints/auth/login_with_password_POST.schema";
 import { useAuth } from "../helpers/useAuth";
 import { useTranslation } from "../helpers/useTranslation";
+import { getClientPlatform } from "../helpers/getClientPlatform";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
 import styles from "./PasswordLoginForm.module.css";
 
@@ -52,7 +53,7 @@ export const PasswordLoginForm: React.FC<PasswordLoginFormProps> = ({
     setIsLoading(true);
 
     try {
-      const result = await postLogin(data);
+      const result = await postLogin({ ...data, clientPlatform: getClientPlatform() });
       onLogin(result.user);
       setTimeout(() => navigate("/"), 200);
     } catch (err) {

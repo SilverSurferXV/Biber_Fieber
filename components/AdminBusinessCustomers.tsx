@@ -15,7 +15,7 @@ import { postAdminBusinessCustomersRestore } from '../endpoints/admin/business-c
 import { postAdminBusinessCustomersDeleteAll } from '../endpoints/admin/business-customers/delete-all_POST.schema';
 import styles from './AdminBusinessCustomers.module.css';
 
-type SortColumn = 'name' | 'company' | 'plz' | 'email' | 'points' | 'bibercode' | null;
+type SortColumn = 'name' | 'company' | 'plz' | 'email' | 'points' | 'bibercode' | 'registered' | null;
 type SortDirection = 'asc' | 'desc';
 
 export const AdminBusinessCustomers = () => {
@@ -203,6 +203,10 @@ export const AdminBusinessCustomers = () => {
           valA = (a.bibercode || '').toLowerCase();
           valB = (b.bibercode || '').toLowerCase();
           break;
+        case 'registered':
+          valA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          valB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          break;
         default:
           valA = `${a.lastName || ''} ${a.firstName || ''}`.toLowerCase();
           valB = `${b.lastName || ''} ${b.firstName || ''}`.toLowerCase();
@@ -281,6 +285,9 @@ export const AdminBusinessCustomers = () => {
               <th onClick={() => handleSort('bibercode')} className={`${styles.sortableHeader} ${sortColumn === 'bibercode' ? styles.activeSort : ''}`}>
                 <div className={styles.headerContent}>Bibercode {renderSortIcon('bibercode')}</div>
               </th>
+              <th onClick={() => handleSort('registered')} className={`${styles.sortableHeader} ${sortColumn === 'registered' ? styles.activeSort : ''}`}>
+                <div className={styles.headerContent}>Registriert seit {renderSortIcon('registered')}</div>
+              </th>
               <th>Aktionen</th>
             </tr>
           </thead>
@@ -288,7 +295,7 @@ export const AdminBusinessCustomers = () => {
             {plzs.map(plz => (
               <React.Fragment key={plz}>
                 <tr className={styles.groupHeader}>
-                  <td colSpan={8}>PLZ: {plz}{getCityForPlz(plz) ? ` — ${getCityForPlz(plz)}` : ''}</td>
+                  <td colSpan={9}>PLZ: {plz}{getCityForPlz(plz) ? ` — ${getCityForPlz(plz)}` : ''}</td>
                 </tr>
                 {(grouped[plz] || []).map((c: any) => (
                   <AdminCustomerRow key={c.id} customer={c} showCompanyName />

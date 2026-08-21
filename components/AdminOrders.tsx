@@ -4,6 +4,7 @@ import { useAdminDrivers } from '../helpers/useAdminDriverApi';
 import { useUpdateOrderStatus } from '../helpers/useUpdateOrderStatus';
 import { useDeleteAdminOrder } from '../helpers/useDeleteAdminOrder';
 import { useAdminZoneDriverAssignments, useSaveAdminZoneDriverAssignment } from '../helpers/useAdminZoneDriverAssignments';
+import { Badge } from './Badge';
 import { Button } from './Button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './Dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './Select';
@@ -113,16 +114,17 @@ const groupedOrders = React.useMemo(() => {
     const dDay = getEffectiveDeliveryDay(order) || 'kein-liefertag';
     const dateStr = dDay;
     const d = dDay === 'kein-liefertag' ? new Date(0) : new Date(dDay);
-    if (!acc[dateStr]) acc[dateStr] = { dateStr, date: d, orders: [], totalBetrag: 0, avgWareneinsatz: null, totalDB1: 0, zoneGroups: [] };
+    if (!acc[dateStr]) acc[dateStr] = { dateStr, date: d, orders: [], totalBetrag: 0, avgWareneinsatz: null, totalDB1: 0, zoneGroups: [], openCount: 0 };
     acc[dateStr].orders.push(order);
     return acc;
-  }, {} as Record<string, { dateStr: string; date: Date; orders: typeof data.orders; totalBetrag: number; avgWareneinsatz: number | null; totalDB1: number, zoneGroups: { postcode: string; orders: typeof data.orders; totalBetrag: number }[] }>);
+  }, {} as Record<string, { dateStr: string; date: Date; orders: typeof data.orders; totalBetrag: number; avgWareneinsatz: number | null; totalDB1: number, zoneGroups: { postcode: string; orders: typeof data.orders; totalBetrag: number }[]; openCount: number }>);
     
     Object.values(groups).forEach(g => {
       g.totalBetrag = g.orders.reduce((sum, o) => sum + Number(o.total || 0), 0);
       const wOrders = g.orders.filter(o => o.wareneinsatz != null);
       g.avgWareneinsatz = wOrders.length > 0 ? wOrders.reduce((sum, o) => sum + Number(o.wareneinsatz), 0) / wOrders.length : null;
       g.totalDB1 = g.orders.reduce((sum, o) => sum + Number(o.db1 || 0), 0);
+      g.openCount = g.orders.filter(o => o.status !== 'delivered' && o.status !== 'cancelled').length;
 
       const zones = g.orders.reduce((zAcc, o) => {
         const postcode = o.customerPostcode || 'Unbekannt';
@@ -257,10 +259,13 @@ const groupedOrders = React.useMemo(() => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-8)' }}>
     {groupedOrders.map((group, index) => (
       <div key={index} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-3)' }}>
-        <h3 className={group.dateStr === todayStr ? localStyles.todayGroup : undefined} style={{ margin: 0, color: 'var(--foreground)', fontSize: '1.25rem' }}>
-          {group.dateStr === 'kein-liefertag' 
-            ? 'Kein Liefertag' 
-            : new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' }).format(group.date)}
+        <h3 className={`${localStyles.groupHeading} ${group.dateStr === todayStr ? localStyles.todayGroup : ''}`.trim()}>
+          {group.openCount > 0 && <Badge variant="destructive">{group.openCount}</Badge>}
+          <span>
+            {group.dateStr === 'kein-liefertag' 
+              ? 'Kein Liefertag' 
+              : new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' }).format(group.date)}
+          </span>
         </h3>
             <div className={styles.tableWrapper}>
               <table className={`${styles.table} ${localStyles.smallTable}`}>
