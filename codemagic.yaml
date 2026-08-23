@@ -42,6 +42,11 @@ workflows:
           cd ios/App
           pod install --repo-update
 
+      - name: Set iOS build number
+        script: |
+          cd ios/App
+          agvtool new-version -all 40
+
       - name: Apply Code Signing
         script: |
           xcode-project use-profiles
