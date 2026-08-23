@@ -14,9 +14,11 @@ import { CookieConsentProvider, useCookieConsent } from "../helpers/useCookieCon
 import { CookieConsent } from "./CookieConsent";
 import { resolveFileUrl } from "../helpers/resolveFileUrl";
 import { ConnectionQualityProvider } from "../helpers/useConnectionQuality";
+import { installApiFetchGuard } from "../helpers/apiFetchGuard";
 import { isNativeApp } from "../helpers/isNativeApp";
 import { getClientPlatform } from "../helpers/getClientPlatform";
 
+installApiFetchGuard();
 
 const queryClient = new QueryClient({
   defaultOptions: {
