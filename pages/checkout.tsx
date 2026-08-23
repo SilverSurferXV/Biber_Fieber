@@ -17,7 +17,6 @@ import { Checkbox } from '../components/Checkbox';
 import { getSonderbereichFiles } from '../endpoints/sonderbereich/list_GET.schema';
 import { getDeliveryZoneCheck } from '../endpoints/delivery-zones/check_GET.schema';
 import { getDeliveryZonesList } from '../endpoints/delivery-zones/list_GET.schema';
-import { isAdult } from '../helpers/isAdult';
 import { Link } from 'react-router-dom';
 import {
   Dialog,
@@ -28,6 +27,22 @@ import {
   DialogFooter,
 } from '../components/Dialog';
 import styles from './checkout.module.css';
+
+const isAdult = (dateOfBirth: string | Date): boolean => {
+  const birthDate = dateOfBirth instanceof Date ? new Date(dateOfBirth) : new Date(dateOfBirth);
+  if (Number.isNaN(birthDate.getTime())) return false;
+
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+
+  return age >= 18;
+};
+
 
 interface InactiveZoneInfo {
   postcode: string;
