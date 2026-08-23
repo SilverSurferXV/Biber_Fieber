@@ -523,6 +523,20 @@ app.get('_api/sonderbereich/list',async c => {
     return c.text("Error loading endpoint code " + e.message,  500)
   }
 })
+app.get('_api/admin/login-history',async c => {
+  try {
+    const { handle } = await import("./endpoints/admin/login-history_GET.js");
+    let request = c.req.raw;
+    const response = await handle(request);
+    if (!(response instanceof Response) && response.constructor.name !== "Response") {
+      return c.text("Invalid response format. handle should always return a Response object." + response.constructor.name, 500);
+    }
+    return response;
+  } catch (e) {
+    console.error(e);
+    return c.text("Error loading endpoint code " + e.message,  500)
+  }
+})
 app.post('_api/admin/order/delete',async c => {
   try {
     const { handle } = await import("./endpoints/admin/order/delete_POST.js");
@@ -1811,9 +1825,9 @@ app.post('_api/admin/charity-organization/upload-logo',async c => {
     return c.text("Error loading endpoint code " + e.message,  500)
   }
 })
-app.get('_api/admin/login-history',async c => {
+app.post('_api/diagnostics/client-error',async c => {
   try {
-    const { handle } = await import("./endpoints/admin/login-history_GET.js");
+    const { handle } = await import("./endpoints/diagnostics/client-error_POST.js");
     let request = c.req.raw;
     const response = await handle(request);
     if (!(response instanceof Response) && response.constructor.name !== "Response") {

@@ -2,6 +2,7 @@ import { schema, OutputType } from "./update_POST.schema";
 import superjson from "superjson";
 import { db } from "../../../helpers/db";
 import { getServerUserSession } from "../../../helpers/getServerUserSession";
+import { isAdult } from "../../../helpers/isAdult";
 
 export async function handle(request: Request) {
   try {
@@ -51,7 +52,12 @@ export async function handle(request: Request) {
     if (input.deliveryStreet !== undefined) updateData.deliveryStreet = input.deliveryStreet;
     if (input.deliveryPostcode !== undefined) updateData.deliveryPostcode = input.deliveryPostcode;
     if (input.deliveryCity !== undefined) updateData.deliveryCity = input.deliveryCity;
-    if (input.deliveryMobileNumber !== undefined) updateData.deliveryMobileNumber = input.deliveryMobileNumber;
+   if (input.deliveryMobileNumber !== undefined) updateData.deliveryMobileNumber = input.deliveryMobileNumber;
+    if (input.dateOfBirth !== undefined) updateData.dateOfBirth = input.dateOfBirth ? new Date(input.dateOfBirth) : null;
+
+    if (input.dateOfBirth && !isAdult(input.dateOfBirth)) {
+      throw new Error("Du musst mindestens 18 Jahre alt sein, um bei uns zu bestellen.");
+    }
 
     await db
       .updateTable("users")

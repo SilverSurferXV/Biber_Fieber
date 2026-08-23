@@ -10,6 +10,7 @@ import { User } from "../../helpers/User";
 import { checkAndNotifyZoneActivation } from "../../helpers/checkAndNotifyZoneActivation";
 import { sendMailjetEmail } from "../../helpers/sendMailjetEmail";
 import { replaceTemplateVars } from "../../helpers/replaceTemplateVars";
+import { isAdult } from "../../helpers/isAdult";
 import superjson from "superjson";
 
 /**
@@ -52,6 +53,7 @@ export async function handle(request: Request) {
     const { salutation, email, password, firstName, lastName, postcode, city, streetAddress, mobileNumber, referralCode, dateOfBirth, companyName } = schema.parse(json);
 
     const displayName = `${firstName} ${lastName}`;
+    const validSalutation = salutation ? salutation : null;
 
     // Check if email already exists
     const existingUser = await db
@@ -101,6 +103,18 @@ export async function handle(request: Request) {
       }
     }
 
+    if (dateOfBirth && !isAdult(dateOfBirth)) {
+      return new Response(
+        superjson.stringify({ message: "Du musst mindestens 18 Jahre alt sein, um bei uns zu bestellen." }),
+        {
+          status: 400,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+
     const passwordHash = await generatePasswordHash(password);
     const bibercode = await generateUniqueBibercode();
 
@@ -109,23 +123,23 @@ export async function handle(request: Request) {
       const [user] = await trx
         .insertInto("users")
         .values({
-          salutation,
+          salutation: validSalutation,
           email,
           displayName,
           firstName,
           lastName,
-          postcode,
-          city,
-          streetAddress,
-          mobileNumber,
+          postcode: postcode || null,
+          city: city || null,
+          streetAddress: streetAddress || null,
+          mobileNumber: mobileNumber || null,
           role: "user",
           emailVerified: true,
           bibercode,
           companyName: companyName ?? null,
           referredByBibercode: validReferralCode,
           pointsBalance: 0,
-          dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
-        })
+         dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+       })
         .returning([
           "id",
           "email",
@@ -213,9 +227,9 @@ export async function handle(request: Request) {
           lastName,
           email,
           bibercode,
-          streetAddress,
-          postcode,
-          city,
+          streetAddress: streetAddress || "",
+          postcode: postcode || "",
+          city: city || "",
         };
 
         let subject: string;
@@ -242,9 +256,11 @@ export async function handle(request: Request) {
     })();
 
     // Fire-and-forget zone activation check — does not delay the registration response
-    checkAndNotifyZoneActivation(postcode).catch((err) =>
-      console.error("Zone activation check failed:", err)
-    );
+    if (postcode) {
+      checkAndNotifyZoneActivation(postcode).catch((err) =>
+        console.error("Zone activation check failed:", err)
+      );
+    }
 
     return response;
   } catch (error: unknown) {

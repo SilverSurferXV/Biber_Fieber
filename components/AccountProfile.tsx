@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useForm, Form, FormItem, FormLabel, FormControl, FormMessage } from './Form';
+import { useForm, Form, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from './Form';
 import { Input } from './Input';
 import { Button } from './Button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './Select';
@@ -12,10 +12,38 @@ import { Checkbox } from './Checkbox';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from './Dialog';
 import { useTranslation } from '../helpers/useTranslation';
 import { getDeliveryZoneCheck } from '../endpoints/delivery-zones/check_GET.schema';
+import { getDeliveryZonesList } from '../endpoints/delivery-zones/list_GET.schema';
 import { useDebounce } from '../helpers/useDebounce';
+import { isAdult } from '../helpers/isAdult';
+import { z } from 'zod';
 import styles from './AccountProfile.module.css';
 
 export const AccountProfile = ({ profile }: { profile: any }) => {
+  const { t } = useTranslation();
+
+  const formSchema = React.useMemo(() => {
+    return profileSchema.superRefine((data, ctx) => {
+      if (data.dateOfBirth && !isAdult(data.dateOfBirth)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["dateOfBirth"],
+          message: t("age.min_18"),
+        });
+      }
+    });
+  }, [t]);
+
+  const formatDateForInput = (dateVal: any) => {
+    if (!dateVal) return '';
+    try {
+      const d = new Date(dateVal);
+      if (isNaN(d.getTime())) return '';
+      return d.toISOString().split('T')[0];
+    } catch (e) {
+      return '';
+    }
+  };
+
   const form = useForm({
     defaultValues: {
       salutation: profile.salutation || '',
@@ -26,6 +54,7 @@ export const AccountProfile = ({ profile }: { profile: any }) => {
       city: profile.city || '',
       postcode: profile.postcode || '',
       mobileNumber: profile.mobileNumber || '',
+      dateOfBirth: formatDateForInput(profile.dateOfBirth),
       languagePreference: profile.languagePreference || 'de',
       notificationPreference: profile.notificationPreference || 'email',
       avatarUrl: profile.avatarUrl || '',
@@ -41,13 +70,12 @@ export const AccountProfile = ({ profile }: { profile: any }) => {
       deliveryCity: profile.deliveryCity || '',
       deliveryMobileNumber: profile.deliveryMobileNumber || '',
     },
-    schema: profileSchema,
+    schema: formSchema,
   });
 
   const { mutateAsync: updateProfile, isPending } = useUpdateProfile();
   const { mutateAsync: deleteAccount } = useDeleteAccount();
   const [showDropoffInfoDialog, setShowDropoffInfoDialog] = useState(false);
-  const { t } = useTranslation();
 
   const isBusinessCustomer = !!profile.companyName;
 
@@ -55,6 +83,56 @@ export const AccountProfile = ({ profile }: { profile: any }) => {
   const [deliveryZoneStatus, setDeliveryZoneStatus] = useState<DeliveryZoneStatus>({ type: "idle" });
   
   const debouncedDeliveryPostcode = useDebounce(form.values.deliveryPostcode || "", 500);
+
+  type BillingZoneStatus = { type: "idle" } | { type: "checking" } | { type: "valid"; info?: string } | { type: "inactive" } | { type: "invalid" };
+  const [billingZoneStatus, setBillingZoneStatus] = useState<BillingZoneStatus>({ type: "idle" });
+  const debouncedBillingPostcode = useDebounce(form.values.postcode || "", 500);
+
+  useEffect(() => {
+    if (debouncedBillingPostcode.length < 4) {
+      setBillingZoneStatus({ type: "idle" });
+      return;
+    }
+
+    let isMounted = true;
+    const checkPostcode = async () => {
+      setBillingZoneStatus({ type: "checking" });
+      try {
+        const result = await getDeliveryZoneCheck({ postcode: debouncedBillingPostcode, checkThreshold: false });
+        if (!isMounted) return;
+        
+        if (result) {
+          setBillingZoneStatus({ type: "valid", info: t('profile.delivery_fee_info', { fee: result.deliveryFee }) });
+        } else {
+          const zones = await getDeliveryZonesList();
+          const regexMatch = zones.find((zone) => {
+            const regexStr = "^" + zone.postcodePattern.replace(/\*/g, ".*") + "$";
+            try {
+              return new RegExp(regexStr).test(debouncedBillingPostcode);
+            } catch {
+              return false;
+            }
+          });
+
+          if (!isMounted) return;
+
+          if (regexMatch !== undefined) {
+            setBillingZoneStatus({ type: "inactive" });
+          } else {
+            setBillingZoneStatus({ type: "invalid" });
+          }
+        }
+      } catch (e) {
+        if (isMounted) setBillingZoneStatus({ type: "idle" });
+      }
+    };
+    
+    checkPostcode();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [debouncedBillingPostcode, t]);
 
   useEffect(() => {
     if (form.values.deliveryAddressSameAsBilling || debouncedDeliveryPostcode.length < 4) {
@@ -260,6 +338,18 @@ export const AccountProfile = ({ profile }: { profile: any }) => {
               <FormLabel>{t("profile.zip")}</FormLabel>
               <FormControl><Input value={form.values.postcode || ''} onChange={e => form.setValues(p => ({ ...p, postcode: e.target.value }))} /></FormControl>
               <FormMessage />
+              {billingZoneStatus.type === 'checking' && (
+                <div className={styles.deliveryZoneChecking}>{t("profile.postcode_checking")}</div>
+              )}
+              {billingZoneStatus.type === 'valid' && (
+                <div className={styles.deliveryZoneValid}>{t("profile.postcode_valid")}</div>
+              )}
+              {billingZoneStatus.type === 'inactive' && (
+                <div className={styles.deliveryZoneInactive}>{t("register.zone_inactive_1")}</div>
+              )}
+              {billingZoneStatus.type === 'invalid' && (
+                <div className={styles.deliveryZoneInvalid}>{t("profile.postcode_invalid")}</div>
+              )}
             </FormItem>
             <FormItem name="city" className={styles.flex2}>
               <FormLabel>{t("profile.city")}</FormLabel>
@@ -271,6 +361,13 @@ export const AccountProfile = ({ profile }: { profile: any }) => {
           <FormItem name="mobileNumber">
             <FormLabel>{t("profile.mobile")}</FormLabel>
             <FormControl><Input value={form.values.mobileNumber || ''} onChange={e => form.setValues(p => ({ ...p, mobileNumber: e.target.value }))} /></FormControl>
+            <FormDescription>(zB. +49 170 11 33 55 88)</FormDescription>
+            <FormMessage />
+          </FormItem>
+
+          <FormItem name="dateOfBirth">
+            <FormLabel>{t("profile.dob")}</FormLabel>
+            <FormControl><Input type="date" value={form.values.dateOfBirth || ''} onChange={e => form.setValues(p => ({ ...p, dateOfBirth: e.target.value }))} /></FormControl>
             <FormMessage />
           </FormItem>
 
@@ -406,7 +503,7 @@ export const AccountProfile = ({ profile }: { profile: any }) => {
           </div>
 
           <div className={styles.actions}>
-            <Button type="submit" disabled={isPending || deliveryZoneStatus.type === "invalid"}>{t("profile.save")}</Button>
+            <Button type="submit" disabled={isPending || deliveryZoneStatus.type === "invalid" || billingZoneStatus.type === "invalid"}>{t("profile.save")}</Button>
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant="destructive" type="button"><Trash2 size={16} style={{ marginRight: '8px' }} /> {t("profile.delete_account")}</Button>

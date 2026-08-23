@@ -17,6 +17,8 @@ import { Checkbox } from '../components/Checkbox';
 import { getSonderbereichFiles } from '../endpoints/sonderbereich/list_GET.schema';
 import { getDeliveryZoneCheck } from '../endpoints/delivery-zones/check_GET.schema';
 import { getDeliveryZonesList } from '../endpoints/delivery-zones/list_GET.schema';
+import { isAdult } from '../helpers/isAdult';
+import { Link } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
@@ -130,6 +132,9 @@ export default function Checkout() {
   const amountUntilFree = Math.max(0, FREE_DELIVERY_THRESHOLD - subtotal);
   const freeDeliveryProgress = Math.min(100, (subtotal / FREE_DELIVERY_THRESHOLD) * 100);
 
+  const isMissingDob = Boolean(!profileLoading && !profile?.dateOfBirth);
+  const isUnderage = Boolean(!profileLoading && profile?.dateOfBirth && !isAdult(profile.dateOfBirth));
+
   const volumeDiscountSavings = items.reduce((acc, item) => {
     const baseBrutto = item.price * (1 + (item.taxRate || 0) / 100);
     const baseBruttoTotal = baseBrutto * item.quantity;
@@ -220,6 +225,8 @@ export default function Checkout() {
     if (modifyOrderId) return handleModifyCheckout();
     if (!profile?.postcode) return toast.error(t("Bitte geben Sie eine Postleitzahl in Ihrem Profil an."));
     if (!zone) return toast.error(t("Keine gültige Lieferzone für Ihre PLZ gefunden."));
+    if (isMissingDob) return toast.error(t("age.dob_required"));
+    if (isUnderage) return toast.error(t("age.min_18"));
     if (!minMet) return toast.error(t("checkout.min_order_not_reached", { amount: Number(zone.minimumOrderValue).toFixed(2) }));
     if (!isPastCutoff && !preferredDeliveryDay) return toast.error(t("Bitte wählen Sie einen Liefertag aus."));
     if (isPastCutoff && !deliveryDate) return toast.error(t("Bitte wählen Sie ein Lieferdatum für die Vorbestellung aus."));
@@ -523,6 +530,18 @@ export default function Checkout() {
               </div>
             </div>
 
+            {isMissingDob && (
+              <div className={styles.minWarning}>
+                {t("age.dob_required")} <Link to="/account?tab=profil" style={{ textDecoration: 'underline', color: 'inherit' }}>Zum Profil</Link>
+              </div>
+            )}
+            
+            {isUnderage && (
+              <div className={styles.minWarning}>
+                {t("age.min_18")}
+              </div>
+            )}
+
             {zone && !minMet && (
               <div className={styles.minWarning}>
                 {t("checkout.min_order_not_reached", { amount: Number(zone.minimumOrderValue).toFixed(2) })}
@@ -559,9 +578,9 @@ export default function Checkout() {
               className={styles.checkoutBtn} 
               size="lg" 
               onClick={handleCheckout}
-              disabled={modifyOrderId 
+              disabled={Boolean(modifyOrderId 
                 ? (isPending || isModifying || checkingZone || zoneLoading || !zone || !minMet)
-                : (isPending || checkingZone || zoneLoading || !zone || !minMet || !agbAccepted || !datenschutzAccepted || (!isPastCutoff && !preferredDeliveryDay) || (isPastCutoff && !deliveryDate))}
+                : (isPending || checkingZone || zoneLoading || !zone || !minMet || !agbAccepted || !datenschutzAccepted || (!isPastCutoff && !preferredDeliveryDay) || (isPastCutoff && !deliveryDate) || isMissingDob || isUnderage))}
             >
               {isPending || isModifying || checkingZone ? t("checkout.processing") : (modifyOrderId ? t("checkout.update_order") : t("checkout.order"))}
             </Button>

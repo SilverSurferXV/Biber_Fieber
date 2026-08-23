@@ -1,7 +1,10 @@
 import { schema, OutputType } from "./create-payment-intent_POST.schema";
 import superjson from "superjson";
 import { getServerUserSession } from "../../helpers/getServerUserSession";
-import Stripe from "stripe";
+import { profileCompleteness } from "../../helpers/profileCompleteness";
+import { isAdult } from "../../helpers/isAdult";
+import { db } from "../../helpers/db";
+import { Stripe } from "stripe";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error("STRIPE_SECRET_KEY is not set");
@@ -14,6 +17,22 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 export async function handle(request: Request) {
   try {
     const { user } = await getServerUserSession(request);
+
+    const profile = await db.selectFrom("users")
+      .select(["postcode", "city", "streetAddress", "mobileNumber", "dateOfBirth"])
+      .where("id", "=", user.id)
+      .executeTakeFirstOrThrow();
+
+    const { isComplete, missingFields } = profileCompleteness(profile);
+    if (!isComplete) {
+      console.error("Profile incomplete for wallet top-up. Missing fields:", missingFields);
+      throw new Error("Bitte vervollständige zuerst deine Daten (PLZ, Stadt, Straße & Hausnummer, Handynummer, Geburtsdatum), um Guthaben aufzuladen.");
+    }
+
+    if (!isAdult(profile.dateOfBirth)) {
+      throw new Error("Du musst mindestens 18 Jahre alt sein, um bei uns zu bestellen.");
+    }
+
     const json = superjson.parse(await request.text());
     const input = schema.parse(json);
 

@@ -4,6 +4,7 @@ import { db } from "../../helpers/db";
 import { getServerUserSession } from "../../helpers/getServerUserSession";
 import { sendMailjetEmail } from "../../helpers/sendMailjetEmail";
 import { replaceTemplateVars } from "../../helpers/replaceTemplateVars";
+import { isAdult } from "../../helpers/isAdult";
 
 export async function handle(request: Request) {
   try {
@@ -20,6 +21,16 @@ export async function handle(request: Request) {
 
     if (!dbUser || !effectivePostcode) {
       throw new Error("Please add your postcode in your account before ordering.");
+    }
+
+    if (!dbUser.dateOfBirth) {
+      console.error(`Checkout rejected: User ${dbUser.id} is missing dateOfBirth.`);
+      throw new Error("Bitte hinterlege dein Geburtsdatum in deinem Profil, um zu bestellen.");
+    }
+
+    if (!isAdult(dbUser.dateOfBirth)) {
+      console.error(`Checkout rejected: User ${dbUser.id} is under 18. Date of birth: ${dbUser.dateOfBirth}`);
+      throw new Error("Du musst mindestens 18 Jahre alt sein, um bei uns zu bestellen.");
     }
 
     const zones = await db.selectFrom("deliveryZones").selectAll().where("active", "=", true).execute();

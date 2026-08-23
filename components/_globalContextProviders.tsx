@@ -14,6 +14,11 @@ import { CookieConsentProvider, useCookieConsent } from "../helpers/useCookieCon
 import { CookieConsent } from "./CookieConsent";
 import { resolveFileUrl } from "../helpers/resolveFileUrl";
 import { ConnectionQualityProvider } from "../helpers/useConnectionQuality";
+import { installApiFetchGuard } from "../helpers/apiFetchGuard";
+import { isNativeApp } from "../helpers/isNativeApp";
+import { getClientPlatform } from "../helpers/getClientPlatform";
+
+installApiFetchGuard();
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -75,6 +80,29 @@ export const GlobalContextProviders = ({
 }: {
   children: ReactNode;
 }) => {
+  useEffect(() => {
+    try {
+      if (isNativeApp() && !sessionStorage.getItem("native_boot_pinged")) {
+        sessionStorage.setItem("native_boot_pinged", "true");
+        const diagnostic = {
+          message: "native app boot",
+          href: window.location.href,
+          origin: window.location.origin,
+          protocol: window.location.protocol,
+          platform: getClientPlatform(),
+          userAgent: navigator.userAgent,
+          pathname: window.location.pathname,
+        };
+        navigator.sendBeacon(
+          "https://biberfieber.floot.app/_api/diagnostics/client-error",
+          new Blob([JSON.stringify(diagnostic)], { type: "text/plain" })
+        );
+      }
+    } catch (e) {
+      console.error("Failed to send native boot diagnostic:", e);
+    }
+  }, []);
+
   useEffect(() => {
     const existingIcons = document.head.querySelectorAll(
       'link[rel="icon"], link[rel="shortcut icon"]'

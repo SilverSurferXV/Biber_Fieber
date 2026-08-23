@@ -2,16 +2,18 @@ import { z } from "zod";
 import { User } from "../../helpers/User";
 import superjson from "superjson";
 
+const salutationEnum = z.enum(["Herr", "Frau", "Herr Dr.", "Frau Dr.", "Firma"]);
+
 export const schema = z.object({
-  salutation: z.enum(["Herr", "Frau", "Herr Dr.", "Frau Dr.", "Firma"]),
+  salutation: z.union([salutationEnum, z.literal(""), z.undefined()]).optional(),
   email: z.string().email("Email ist erforderlich"),
   password: z.string().min(8, "Passwort muss mindestens 8 Zeichen lang sein"),
   firstName: z.string().min(1, "Vorname ist erforderlich"),
   lastName: z.string().min(1, "Nachname ist erforderlich"),
-  postcode: z.string().min(1, "Postleitzahl ist erforderlich"),
-  city: z.string().min(1, "Stadt ist erforderlich"),
-  streetAddress: z.string().min(1, "Straße und Hausnummer ist erforderlich"),
-  mobileNumber: z.string().min(1, "Handynummer ist erforderlich"),
+  postcode: z.string().optional(),
+  city: z.string().optional(),
+  streetAddress: z.string().optional(),
+  mobileNumber: z.string().optional(),
   referralCode: z.string().optional(),
   dateOfBirth: z.string().optional(),
   companyName: z.string().optional(),

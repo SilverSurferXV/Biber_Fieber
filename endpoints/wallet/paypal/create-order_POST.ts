@@ -1,13 +1,32 @@
 import { schema, OutputType } from "./create-order_POST.schema";
 import superjson from "superjson";
 import { getServerUserSession } from "../../../helpers/getServerUserSession";
+import { profileCompleteness } from "../../../helpers/profileCompleteness";
+import { isAdult } from "../../../helpers/isAdult";
+import { db } from "../../../helpers/db";
 import { getPaypalAccessToken, getPaypalBaseUrl } from "../../../helpers/paypalApi";
 
 export async function handle(request: Request) {
-  try {
+   try {
     const { user } = await getServerUserSession(request);
-    const json = superjson.parse(await request.text());
-    const input = schema.parse(json);
+
+   const profile = await db.selectFrom("users")
+     .select(["postcode", "city", "streetAddress", "mobileNumber", "dateOfBirth"])
+     .where("id", "=", user.id)
+     .executeTakeFirstOrThrow();
+
+   const { isComplete, missingFields } = profileCompleteness(profile);
+   if (!isComplete) {
+     console.error("Profile incomplete for wallet top-up. Missing fields:", missingFields);
+     throw new Error("Bitte vervollständige zuerst deine Daten (PLZ, Stadt, Straße & Hausnummer, Handynummer, Geburtsdatum), um Guthaben aufzuladen.");
+   }
+
+   if (!isAdult(profile.dateOfBirth)) {
+     throw new Error("Du musst mindestens 18 Jahre alt sein, um bei uns zu bestellen.");
+   }
+
+     const json = superjson.parse(await request.text());
+     const input = schema.parse(json);
 
     const accessToken = await getPaypalAccessToken();
     const baseUrl = getPaypalBaseUrl();

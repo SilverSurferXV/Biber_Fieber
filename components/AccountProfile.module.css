@@ -200,6 +200,12 @@
   margin-top: var(--spacing-1);
 }
 
+.deliveryZoneInactive {
+  font-size: 0.75rem;
+  color: var(--warning);
+  margin-top: var(--spacing-1);
+}
+
 .deliveryZoneInvalid {
   font-size: 0.75rem;
   color: var(--error);

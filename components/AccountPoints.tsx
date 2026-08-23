@@ -4,6 +4,8 @@ import { Badge } from './Badge';
 import { TopupPaymentDialog } from './TopupPaymentDialog';
 import { useTranslation } from '../helpers/useTranslation';
 import { useCustomerPointHistory } from '../helpers/useCustomerPointHistory';
+import { profileCompleteness } from '../helpers/profileCompleteness';
+import { CompleteProfileDialog } from './CompleteProfileDialog';
 import { Skeleton } from './Skeleton';
 import styles from './AccountPoints.module.css';
 
@@ -11,6 +13,8 @@ export const AccountPoints = ({ profile }: { profile: any }) => {
   const { t } = useTranslation();
   const [selectedTopup, setSelectedTopup] = useState<number | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [pendingTopupAmount, setPendingTopupAmount] = useState<number | null>(null);
+  const [showCompleteProfile, setShowCompleteProfile] = useState(false);
   const { data: historyData, isLoading: isHistoryLoading } = useCustomerPointHistory();
 
   const renderBadge = (type: string, amount: number) => {
@@ -19,6 +23,16 @@ export const AccountPoints = ({ profile }: { profile: any }) => {
     if (type === "bibercode_credit") return <Badge variant="primary">{t("points.bibercode_bonus")}</Badge>;
     if (type === "admin_adjustment") return <Badge variant="outline">{t("points.adjustment")}</Badge>;
     return <Badge variant="secondary">{type}</Badge>;
+  };
+
+  const handleTopupClick = (amount: number) => {
+    const completeness = profileCompleteness(profile);
+    if (completeness.isComplete) {
+      setSelectedTopup(amount);
+    } else {
+      setPendingTopupAmount(amount);
+      setShowCompleteProfile(true);
+    }
   };
 
   const options = [
@@ -79,7 +93,14 @@ export const AccountPoints = ({ profile }: { profile: any }) => {
         </div>
       )}
 
-      <h4>{t("points.topup")}</h4>
+      <div className={styles.topupHeader}>
+        <h4>{t("points.topup")}</h4>
+        {!profileCompleteness(profile).isComplete && (
+          <p className={styles.incompleteProfileHint}>
+            {t("complete_profile.required_hint")}
+          </p>
+        )}
+      </div>
       <div className={styles.topupGrid}>
         {options.map(opt => (
           <div key={opt.amount} className={styles.topupCard}>
@@ -90,7 +111,7 @@ export const AccountPoints = ({ profile }: { profile: any }) => {
               <div className={styles.noBonus}>{t("points.no_bonus")}</div>
             )}
             <p className={styles.receiveText}>{t("points.receive", { amount: (opt.amount * (1 + opt.bonus / 100)).toFixed(2) })}</p>
-            <Button onClick={() => setSelectedTopup(opt.amount)} className={styles.topupAction}>{t("points.buy")}</Button>
+            <Button onClick={() => handleTopupClick(opt.amount)} className={styles.topupAction}>{t("points.buy")}</Button>
           </div>
         ))}
       </div>
@@ -100,6 +121,24 @@ export const AccountPoints = ({ profile }: { profile: any }) => {
           isOpen={true}
           onClose={() => setSelectedTopup(null)}
           amount={selectedTopup}
+        />
+      )}
+
+      {showCompleteProfile && (
+        <CompleteProfileDialog
+          isOpen={true}
+          onClose={() => {
+            setShowCompleteProfile(false);
+            setPendingTopupAmount(null);
+          }}
+          profile={profile}
+          onCompleted={() => {
+            setShowCompleteProfile(false);
+            if (pendingTopupAmount !== null) {
+              setSelectedTopup(pendingTopupAmount);
+              setPendingTopupAmount(null);
+            }
+          }}
         />
       )}
     </div>

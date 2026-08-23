@@ -34,6 +34,7 @@ import { useTranslation } from "../helpers/useTranslation";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "./Select";
 import { getValidateBibercode } from "../endpoints/referral/validate_GET.schema";
 import { getCheckEmail } from "../endpoints/auth/check-email_GET.schema";
+import { isAdult } from "../helpers/isAdult";
 import styles from "./PasswordRegisterForm.module.css";
 
 function formatDateInput(value: string): string {
@@ -117,6 +118,16 @@ export const PasswordRegisterForm: React.FC<PasswordRegisterFormProps> = ({
           path: ["companyName"],
           message: t('register.company_required'),
         });
+      }
+      if (data.dateOfBirth && data.dateOfBirth.trim() !== "") {
+        const iso = convertDEtoISO(data.dateOfBirth);
+        if (!isAdult(iso)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["dateOfBirth"],
+            message: t("age.min_18"),
+          });
+        }
       }
     });
   }, [showCompanyName, t]);
@@ -300,9 +311,19 @@ export const PasswordRegisterForm: React.FC<PasswordRegisterFormProps> = ({
     if (data.dateOfBirth) {
       data.dateOfBirth = convertDEtoISO(data.dateOfBirth);
     }
+    if (!data.salutation) {
+      data.salutation = undefined;
+    }
 
     setError(null);
     setIsLoading(true);
+
+    // If no postcode is provided, skip the delivery zone check and register directly
+    if (!data.postcode || data.postcode.trim() === "") {
+      setIsLoading(false);
+      await performRegistration(data);
+      return;
+    }
 
     try {
       // Check delivery zone BEFORE registration
@@ -327,7 +348,7 @@ export const PasswordRegisterForm: React.FC<PasswordRegisterFormProps> = ({
             const regexStr =
               "^" + zone.postcodePattern.replace(/\*/g, ".*") + "$";
             try {
-              return new RegExp(regexStr).test(data.postcode);
+              return new RegExp(regexStr).test(data.postcode ?? "");
             } catch {
               return false;
             }
@@ -433,14 +454,16 @@ export const PasswordRegisterForm: React.FC<PasswordRegisterFormProps> = ({
           className={`${styles.form} ${className || ""}`}
         >
           <FormItem name="salutation">
-            <FormLabel>{t('register.salutation')}</FormLabel>
+            <FormLabel>{t('register.salutation')}{" "}
+              <span className={styles.optionalLabel}>{t('register.optional')}</span>
+            </FormLabel>
             <FormControl>
               <Select
                 value={form.values.salutation || "__empty"}
                 onValueChange={(v) =>
-                                    form.setValues((prev) => ({
+                  form.setValues((prev) => ({
                     ...prev,
-                    salutation: (v === "__empty" ? "" : v) as any,
+                    salutation: (v === "__empty" ? undefined : v) as any,
                   }))
                 }
               >
@@ -451,7 +474,7 @@ export const PasswordRegisterForm: React.FC<PasswordRegisterFormProps> = ({
                   <SelectItem value="Herr">{t('register.mr')}</SelectItem>
                   <SelectItem value="Frau">{t('register.mrs')}</SelectItem>
                   <SelectItem value="Herr Dr.">{t('register.mr_dr')}</SelectItem>
-                                    <SelectItem value="Frau Dr.">{t('register.mrs_dr')}</SelectItem>
+                  <SelectItem value="Frau Dr.">{t('register.mrs_dr')}</SelectItem>
                   {showCompanyName && <SelectItem value="Firma">{t('register.company')}</SelectItem>}
                 </SelectContent>
               </Select>
@@ -545,7 +568,9 @@ export const PasswordRegisterForm: React.FC<PasswordRegisterFormProps> = ({
 
           <div className={styles.postcodeRow}>
             <FormItem name="postcode" className={styles.postcodeField}>
-              <FormLabel>{t("register.zip")}</FormLabel>
+              <FormLabel>{t("register.zip")}{" "}
+                <span className={styles.optionalLabel}>{t('register.optional')}</span>
+              </FormLabel>
               <FormControl>
                 <Input
                   placeholder="10115"
@@ -561,8 +586,10 @@ export const PasswordRegisterForm: React.FC<PasswordRegisterFormProps> = ({
               <FormMessage />
             </FormItem>
 
-            <FormItem name="city" className={styles.cityField}>
-              <FormLabel>{t("register.city")}</FormLabel>
+           <FormItem name="city" className={styles.cityField}>
+              <FormLabel>{t("register.city")}{" "}
+                <span className={styles.optionalLabel}>{t('register.optional')}</span>
+              </FormLabel>
               <FormControl>
                 <Input
                   placeholder="Berlin"
@@ -598,8 +625,10 @@ export const PasswordRegisterForm: React.FC<PasswordRegisterFormProps> = ({
             </div>
           )}
 
-          <FormItem name="streetAddress">
-            <FormLabel>{t("register.street")}</FormLabel>
+         <FormItem name="streetAddress">
+            <FormLabel>{t("register.street")}{" "}
+              <span className={styles.optionalLabel}>{t('register.optional')}</span>
+            </FormLabel>
             <FormControl>
               <Input
                 placeholder="Musterstraße 42"
@@ -615,8 +644,10 @@ export const PasswordRegisterForm: React.FC<PasswordRegisterFormProps> = ({
             <FormMessage />
           </FormItem>
 
-          <FormItem name="mobileNumber">
-            <FormLabel>{t("register.mobile")}</FormLabel>
+         <FormItem name="mobileNumber">
+            <FormLabel>{t("register.mobile")}{" "}
+              <span className={styles.optionalLabel}>{t('register.optional')}</span>
+            </FormLabel>
             <FormControl>
               <Input
                 type="tel"
@@ -633,8 +664,10 @@ export const PasswordRegisterForm: React.FC<PasswordRegisterFormProps> = ({
             <FormMessage />
           </FormItem>
 
-          <FormItem name="dateOfBirth">
-            <FormLabel>{t("register.dob")}</FormLabel>
+         <FormItem name="dateOfBirth">
+            <FormLabel>{t("register.dob")}{" "}
+              <span className={styles.optionalLabel}>{t('register.optional')}</span>
+            </FormLabel>
             <FormControl>
               <Input
                 type="text"
@@ -735,11 +768,11 @@ export const PasswordRegisterForm: React.FC<PasswordRegisterFormProps> = ({
             <FormMessage />
           </FormItem>
 
-          <Button
+         <Button
             type="submit"
-            disabled={isLoading || zoneStatus?.type === "no_zone" || emailStatus.type === "taken"}
-            className={styles.submitButton}
-          >
+           disabled={isLoading || (form.values.postcode && zoneStatus?.type === "no_zone") || emailStatus.type === "taken"}
+           className={styles.submitButton}
+         >
             {isLoading ? (
               <>
                 <Spinner size="sm" /> {t("register.checking")}

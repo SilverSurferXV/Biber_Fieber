@@ -24,6 +24,7 @@ export const schema = z.object({
   deliveryPostcode: z.string().nullable().optional(),
   deliveryCity: z.string().nullable().optional(),
   deliveryMobileNumber: z.string().nullable().optional(),
+  dateOfBirth: z.string().nullable().optional(),
 });
 
 export type OutputType = { success: boolean };
