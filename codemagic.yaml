@@ -23,6 +23,7 @@ workflows:
       - name: Install dependencies
         script: |
           pnpm config set dangerouslyAllowAllBuilds true
+          pnpm config set minimumReleaseAge 0
           pnpm install --no-frozen-lockfile
 
       - name: Build Web App
@@ -46,7 +47,7 @@ workflows:
       - name: Set iOS build number
         script: |
           cd ios/App
-          agvtool new-version -all 40
+          agvtool new-version -all 41
 
       - name: Apply Code Signing
         script: |
