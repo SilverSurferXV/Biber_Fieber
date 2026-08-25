@@ -356,7 +356,7 @@ export const TopupPaymentDialog = ({
                         amount={amount}
                         paymentIntentId={paymentIntentId}
                         onSuccess={handleClose}
-                        onReady={(available) => setWalletsAvailable(available)}
+                        onReady={(available, _methods) => setWalletsAvailable(available)}
                       />
                     </Elements>
                   </div>

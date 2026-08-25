@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CreditCard, AlertCircle, CheckCircle, Plus, X, Save } from 'lucide-react';
+import { CreditCard, AlertCircle, CheckCircle, Plus, X, Save, Globe, AlertTriangle } from 'lucide-react';
 import { useStripeStatus, useStripeTopups } from '../helpers/useStripeAdmin';
 import { useSettings } from '../helpers/useShopApi';
 import { useSaveBonusTiersMutation } from '../helpers/useSaveBonusTiersMutation';
@@ -87,12 +87,26 @@ export const AdminStripe = () => {
   const maskedKey = STRIPE_PUBLISHABLE_KEY 
     ? `••••••••••••••••${STRIPE_PUBLISHABLE_KEY.slice(-4)}`
     : 'Nicht konfiguriert';
+    
+  const isFrontendTestMode = STRIPE_PUBLISHABLE_KEY.startsWith('pk_test_');
+  const modeMismatch = statusData?.connected && typeof statusData.livemode === 'boolean' && 
+    statusData.livemode !== !isFrontendTestMode;
 
   return (
     <div className={styles.viewContainer}>
       <div className={styles.header}>
         <h2>Stripe Integration</h2>
       </div>
+      
+      {modeMismatch && (
+        <div className={styles.modeMismatchWarning}>
+          <AlertTriangle size={20} style={{ marginRight: 'var(--spacing-2)', flexShrink: 0 }} />
+          <div>
+            <strong>Warnung: Modi-Konflikt</strong><br />
+            Der Frontend-Publishable-Key läuft im {isFrontendTestMode ? 'Testmodus' : 'Live-Modus'}, während das Backend im {statusData?.livemode ? 'Live-Modus' : 'Testmodus'} läuft. Apple Pay und Google Pay können daher nicht funktionieren, da Zahlungsdomains modusspezifisch registriert werden.
+          </div>
+        </div>
+      )}
 
       <div className={styles.gridContainer}>
         {/* Connection Status */}
@@ -120,6 +134,15 @@ export const AdminStripe = () => {
                 )}
               </div>
               
+              {statusData?.connected && typeof statusData.livemode === 'boolean' && (
+                <div className={styles.statusRow}>
+                  <span className={styles.statusLabel}>Modus:</span>
+                  <Badge variant={statusData.livemode ? "success" : "warning"}>
+                    {statusData.livemode ? "Live-Modus" : "Testmodus"}
+                  </Badge>
+                </div>
+              )}
+              
               {!statusData?.connected && 'error' in (statusData || {}) && (
                 <div className={styles.errorMessage}>
                   {(statusData as any).error}
@@ -144,6 +167,53 @@ export const AdminStripe = () => {
                 {method}
               </Badge>
             ))}
+          </div>
+          
+          {/* Payment Method Domains */}
+          <div className={styles.domainsWrapper}>
+            <h4 className={styles.subtitle}>Registrierte Zahlungsdomains</h4>
+            {isLoadingStatus ? (
+              <div className={styles.skeletonGroup}>
+                <Skeleton style={{ height: '2rem', width: '100%' }} />
+                <Skeleton style={{ height: '2rem', width: '100%' }} />
+              </div>
+            ) : statusData?.connected && statusData.paymentMethodDomains && statusData.paymentMethodDomains.length > 0 ? (
+              <div className={styles.domainList}>
+                {statusData.paymentMethodDomains.map((domain) => (
+                  <div key={domain.domainName} className={styles.domainItem}>
+                    <div className={styles.domainHeader}>
+                      <Globe size={16} style={{ marginRight: 'var(--spacing-2)', color: 'var(--muted-foreground)' }} />
+                      <span className={styles.domainName}>{domain.domainName}</span>
+                      {domain.enabled ? (
+                        <Badge variant="success">Aktiv</Badge>
+                      ) : (
+                        <Badge variant="outline">Inaktiv</Badge>
+                      )}
+                    </div>
+                    <div className={styles.domainStatusGrid}>
+                      <div className={styles.domainStatusRow}>
+                        <span className={styles.statusLabel}>Apple Pay:</span>
+                        <span className={domain.applePay === 'active' ? styles.statusActive : styles.statusUnknown}>
+                          {domain.applePay}
+                        </span>
+                      </div>
+                      <div className={styles.domainStatusRow}>
+                        <span className={styles.statusLabel}>Google Pay:</span>
+                        <span className={domain.googlePay === 'active' ? styles.statusActive : styles.statusUnknown}>
+                          {domain.googlePay}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.emptyStateBox}>
+                Keine Zahlungsdomain registriert. Apple Pay und Google Pay bleiben daher unsichtbar. 
+                Bitte fügen Sie <code className={styles.inlineCode}>biberfieber.floot.app</code> unter 
+                Stripe Dashboard &rarr; Einstellungen &rarr; Zahlungen &rarr; Payment method domains hinzu.
+              </div>
+            )}
           </div>
         </div>
       </div>

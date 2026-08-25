@@ -1,4 +1,7 @@
+import { translationsHandoffExtraEs } from "./translationsHandoffExtra";
+
 export const translationsEs: Record<string, string> = {
+  ...translationsHandoffExtraEs,
   "nav.home": "Inicio",
   "nav.shop": "Tienda",
   "nav.guthaben": "Saldo",
@@ -268,6 +271,7 @@ export const translationsEs: Record<string, string> = {
   "handoff.back_to_app": "Volver a la aplicación",
   "handoff.expired_title": "Enlace caducado",
   "handoff.expired_text": "Por favor, reinicia la recarga en la aplicación.",
+  "handoff.wallets_unavailable": "Apple Pay / Google Pay no está disponible en este dispositivo o navegador. El pago con tarjeta funciona normalmente.",
   "handoff.completed_title": "Ya completado",
   "handoff.completed_text": "Esta recarga ya ha sido completada.",
   "handoff.error_title": "Algo salió mal",

@@ -23,6 +23,26 @@ interface CapacitorStripePlugin {
 let stripePlugin: CapacitorStripePlugin | null = null;
 let initializationPromise: Promise<void> | null = null;
 
+const reportDiagnostic = (data: any) => {
+  try {
+    const diagnostic = {
+      message: "native wallet availability",
+      ...data,
+      context: {
+        origin: typeof window !== 'undefined' ? window.location.origin : null,
+        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
+        stripeKeyPrefix: STRIPE_PUBLISHABLE_KEY.substring(0, 8),
+      }
+    };
+    navigator.sendBeacon(
+      "/_api/diagnostics/client-error",
+      new Blob([JSON.stringify(diagnostic)], { type: "text/plain" })
+    );
+  } catch (e) {
+    // Ignore
+  }
+};
+
 /**
  * Accesses the Capacitor Stripe plugin dynamically from the global window object.
  */
@@ -64,6 +84,7 @@ function initialize(): Promise<void> {
       console.error("Failed to initialize Stripe plugin", error);
       // reset promise so we can retry on next call if it failed
       initializationPromise = null;
+      throw error;
     });
   }
 
@@ -76,16 +97,36 @@ export const nativeStripeWallet = {
    */
   async getAvailability(): Promise<{ applePay: boolean; googlePay: boolean; pluginAvailable: boolean }> {
     const plugin = getPlugin();
+    
+    const Capacitor = typeof window !== 'undefined' ? (window as any).Capacitor : null;
+    const hasCapacitor = !!Capacitor;
+    const hasStripePlugin = !!(Capacitor?.Plugins?.Stripe);
+
     if (!plugin) {
       console.log("[nativeStripeWallet] Plugin not found in native build, browser handoff will be used.");
+      reportDiagnostic({
+        pluginAvailable: false,
+        applePay: false,
+        googlePay: false,
+        hasCapacitor,
+        hasStripePlugin,
+        platform: getClientPlatform(),
+      });
       return { applePay: false, googlePay: false, pluginAvailable: false };
     }
 
-    await initialize();
+    let initError: any = null;
+    try {
+      await initialize();
+    } catch (e) {
+      initError = String(e);
+    }
 
     const platform = getClientPlatform();
     let applePay = false;
     let googlePay = false;
+    let applePayError = null;
+    let googlePayError = null;
 
     // Check Apple Pay availability only on iOS
     if (platform === "ios-app") {
@@ -94,6 +135,7 @@ export const nativeStripeWallet = {
         applePay = true;
       } catch (error) {
         applePay = false;
+        applePayError = String(error);
       }
     }
 
@@ -104,11 +146,23 @@ export const nativeStripeWallet = {
         googlePay = true;
       } catch (error) {
         googlePay = false;
+        googlePayError = String(error);
       }
     }
 
     const result = { applePay, googlePay, pluginAvailable: true };
-    console.log("[nativeStripeWallet] getAvailability result:", { ...result, platform });
+    console.log("[nativeStripeWallet] getAvailability result:", { ...result, platform, initError, applePayError, googlePayError });
+    
+    reportDiagnostic({
+      ...result,
+      platform,
+      hasCapacitor,
+      hasStripePlugin,
+      initError,
+      applePayError,
+      googlePayError,
+    });
+
     return result;
   },
 
@@ -131,6 +185,7 @@ export const nativeStripeWallet = {
 
     try {
       if (args.kind === "apple_pay") {
+        // Note: PaymentSummaryItem.amount is a decimal in the currency's major unit (e.g. 10.99 for euros), not cents.
         await plugin.createApplePay({
           paymentIntentClientSecret: args.clientSecret,
           paymentSummaryItems: [{ label: args.label, amount: args.amount }],
@@ -148,13 +203,10 @@ export const nativeStripeWallet = {
         console.error("Apple Pay failed or returned unknown status:", paymentResult);
         return "failed";
       } else if (args.kind === "google_pay") {
+        // Note: For Google Pay, paymentSummaryItems, merchantIdentifier, countryCode, currency, and isTesting 
+        // are marked as "Web only" in the type definitions and not used natively. Natively, only paymentIntentClientSecret is used.
         await plugin.createGooglePay({
           paymentIntentClientSecret: args.clientSecret,
-          paymentSummaryItems: [{ label: args.label, amount: args.amount }],
-          merchantIdentifier: GOOGLE_PAY_MERCHANT_NAME,
-          countryCode: "DE",
-          currency: "EUR",
-          isTesting: STRIPE_PUBLISHABLE_KEY.startsWith("pk_test"),
         });
 
         const result = await plugin.presentGooglePay();

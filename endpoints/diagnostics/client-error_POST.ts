@@ -16,14 +16,19 @@ export async function handle(request: Request) {
       };
     }
 
-    const parsed = schema.safeParse(payload);
-    const data = parsed.success ? parsed.data : payload;
-    const { ipAddress, userAgent } = requestClientInfo(request);
-
-    console.error("[client-diagnostic]", {
-      ...(typeof data === "object" && data !== null ? data : { data }),
-      serverIpHeader: ipAddress,
-      serverUserAgentHeader: userAgent,
+     const parsed = schema.safeParse(payload);
+     const data = parsed.success ? parsed.data : payload;
+     const { ipAddress, userAgent } = requestClientInfo(request);
+    
+    const logBase = typeof data === "object" && data !== null ? data : { data };
+    const { context, ...rest } = logBase as Record<string, unknown>;
+ 
+     console.error("[client-diagnostic]", {
+      ...rest,
+       ...(typeof data === "object" && data !== null ? data : { data }),
+       serverIpHeader: ipAddress,
+       serverUserAgentHeader: userAgent,
+      contextJson: context ? JSON.stringify(context) : undefined,
     });
 
     return new Response(superjson.stringify({ success: true }), {

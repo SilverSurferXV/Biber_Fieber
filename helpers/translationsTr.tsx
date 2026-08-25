@@ -1,4 +1,7 @@
+import { translationsHandoffExtraTr } from "./translationsHandoffExtra";
+
 export const translationsTr: Record<string, string> = {
+  ...translationsHandoffExtraTr,
   "nav.home": "Ana Sayfa",
   "nav.shop": "Mağaza",
   "nav.guthaben": "Bakiye",
@@ -268,6 +271,7 @@ export const translationsTr: Record<string, string> = {
   "handoff.back_to_app": "Uygulamaya dön",
   "handoff.expired_title": "Bağlantı süresi doldu",
   "handoff.expired_text": "Lütfen uygulamada yüklemeyi yeniden başlatın.",
+  "handoff.wallets_unavailable": "Apple Pay / Google Pay bu cihazda veya tarayıcıda mevcut değil. Kartla ödeme normal şekilde çalışır.",
   "handoff.completed_title": "Zaten tamamlandı",
   "handoff.completed_text": "Bu yükleme zaten tamamlandı.",
   "handoff.error_title": "Bir şeyler ters gitti",

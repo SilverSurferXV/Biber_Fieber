@@ -10,7 +10,8 @@ import styles from './TopupPaymentDialog.module.css';
    amount: number;
    paymentIntentId: string;
    onSuccess: () => void;
-   onReady: (available: boolean) => void;
+   onReady: (available: boolean, methods?: any) => void;
+   onLoadError?: (error: any) => void;
   creditPayment?: (args: { paymentIntentId: string; paymentMethod: string }) => Promise<{ pointsCredited: number }>;
   returnUrl?: string;
  }
@@ -20,6 +21,7 @@ import styles from './TopupPaymentDialog.module.css';
    paymentIntentId,
    onSuccess,
   onReady,
+  onLoadError,
   creditPayment,
   returnUrl
  }: WalletExpressCheckoutProps) => {
@@ -83,8 +85,7 @@ import styles from './TopupPaymentDialog.module.css';
         paymentMethods: {
           link: 'never',
           paypal: 'never',
-          amazonPay: 'never',
-          klarna: 'never'
+          amazonPay: 'never'
         },
         buttonHeight: 48,
         layout: { overflow: 'never' }
@@ -92,7 +93,10 @@ import styles from './TopupPaymentDialog.module.css';
       onReady={(event: StripeExpressCheckoutElementReadyEvent) => {
         const methods = event.availablePaymentMethods;
         const available = !!(methods && Object.values(methods).some(Boolean));
-        onReady(available);
+        onReady(available, methods);
+      }}
+      onLoadError={(error) => {
+        if (onLoadError) onLoadError(error);
       }}
       onConfirm={handleConfirm}
       onCancel={() => {
