@@ -1,36 +1,31 @@
 # Native App API Error Investigation & Mitigation
 
-**Symptom**  
-Apple review rejection for iOS app: "JSON Parse error: Unrecognized token '<'" shown on the login screen.
+**Symptom Pattern**
+Login and public endpoints succeed, but every authenticated endpoint returns 401. As a result, the UI appears logged in, but session-dependent data (wallet/Guthaben balance, admin tab contents, profile details) renders completely empty.
 
-**Investigation**  
-- No row found in `login_attempts` DB table for the review timeframe.
-- No Lambda invocation in the published backend logs at that time.  
-- The login request never reached the backend.  
-- The published web app functions normally. The published backend otherwise only sees scheduled-job traffic.
+**Proven Root Cause**
+Production logs (via `native-probe`) confirm that requests from the iOS app DO reach the backend from the origin `capacitor://localhost`. However, iOS WKWebView blocks the `floot_built_app_session` session cookie because it is considered cross-site relative to the native app origin. The incoming requests show `hasCookieHeader: false` and `outcome: 'no-cookie'`. CORS is NOT the issue, as the requests are reaching the backend.
 
-**Mitigation & Tracking (`helpers/apiFetchGuard`)**  
-- `window.fetch` is globally patched (installed at module scope in `components/_globalContextProviders`).
-- Detects HTML or non-JSON responses to `/_api/` endpoints (the source of the JSON parse error).
-- Dispatches diagnostics via `navigator.sendBeacon` to `endpoints/diagnostics/client-error_POST`.  
-  *Crucial:* Payload is sent as `text/plain` to remain a CORS-simple request and reach the server cross-origin without preflight blocks.
-- Initiates a one-time retry against the absolute published origin: `https://biberfieber.floot.app`.
-- Surfaces a user-friendly German connection error instead of the raw JSON parse exception.
+**Implemented Fix: Bearer-Token Fallback**
+Because a server-side-only fix is impossible, the authentication mechanism has been augmented for native apps:
+- **Backend:** `helpers/getSetServerSession` now supports an `Authorization: Bearer <jwt>` fallback in `getServerSessionOrThrow` when the session cookie is missing.
+- **Token Delivery:** The four login/register endpoints, as well as `auth/session_GET`, return an optional `sessionToken` in the response body. `session_GET` generates a fresh token on every check to keep the 1-day JWT refreshed.
+- **Native Client Storage:** The schema fetch wrappers (using `helpers/nativeSessionToken`) persist this token in `localStorage` and clear it on logout. Storage only occurs if `isNativeApp()` is true.
+- **Request Interception:** `helpers/apiFetchGuard` intercepts `/_api/` requests and attaches the token via the `Authorization` header. If the header causes a network/CORS error, it retries without the header, disables it for the session, and reports the error via a diagnostic beacon.
 
-**Diagnostic Boot Ping**  
-- A one-time native boot ping is sent from `components/_globalContextProviders` to log the app's boot environment.
-- **Reading Logs:** Use the `prod-backend-logs` bridge and filter for `"client-diagnostic"` to read both the boot pings and fetch guard reports.
+**Web Clients**
+Web clients (PWA/desktop) remain completely unaffected and continue to rely entirely on the secure, HttpOnly session cookie.
 
-**Findings from Test (23.08.2026)**
-- In the installed iOS build (CFBundleVersion 38) NOTHING loads: shop shows no products and login fails with the JSON parse error. So the native app has never been able to reach the backend — it is not a transient Apple-reviewer network issue.
-- Published web app works normally (verified in prod logs).
-- Verified from the sandbox: ANY cross-origin request to https://biberfieber.floot.app fails (even a plain GET of /login) → the published app sends no CORS headers at all. Consequence: if the native shell really serves the frontend from a local bundle (capacitor://localhost), an absolute-URL retry from app code CANNOT succeed without Capacitor's native HTTP layer — that part is platform-level (capacitor.config / edge CORS) and not fixable from project code.
+**Verification Results**
+- Requests with Bearer token only (no cookie): return 200 OK.
+- Requests with missing/invalid token (and no cookie): return 401 Unauthorized.
+- Requests with cookie only (web path): return 200 OK.
 
-**Next Steps**
-- Publish + create a TestFlight build so the "native app boot" beacon and apiFetchGuard diagnostics land in the production backend logs (read via prod-backend-logs, filter "client-diagnostic").
-- This will reveal the real origin/protocol of the native webview. 
-- Floot support (live chat) may be needed for the native build's API base / CORS.
+**Critical Operational Note**
+Because the frontend is baked into the native binary (local bundle), this token logic **only takes effect after a NEW native build/publish**. After updating the app, existing native users must log in again once to securely store the new Bearer token.
 
-**Capacitor & Hostname Assumptions**  
-- `helpers/resolveFileUrl` assumes the hostname is `localhost` inside the native shell. This is an unverified assumption that the boot ping will confirm or disprove.
-- **CORS Limitation:** Cross-origin `/_api/` calls from another origin naturally fail due to missing CORS headers (verified). If the native shell genuinely runs on `capacitor://localhost`, the absolute-URL retry strategy will fail due to CORS unless Capacitor's native HTTP layer intercepts and processes it.
+**Reading Diagnostics in Production**
+- Use the `prod-backend-logs` bridge and filter for `native-probe`.
+- The `outcome` field will now report `ok-cookie`, `ok-bearer`, `no-cookie`, or `jwt-invalid`.
+- A successful authenticated request from a native app should log `hasAuthHeader: true` and `outcome: 'ok-bearer'`.
+- *Note: The diagnostic probe in `helpers/logNativeRequestProbe` is temporary and can be safely removed once native authentication is confirmed fully functional in production.*

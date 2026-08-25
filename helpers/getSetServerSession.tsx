@@ -1,7 +1,8 @@
 import { jwtVerify, SignJWT } from "jose";
-
-const encoder = new TextEncoder();
-const secret = process.env.JWT_SECRET;
+import { logNativeRequestProbe } from "./logNativeRequestProbe";
+ 
+ const encoder = new TextEncoder();
+ const secret = process.env.JWT_SECRET;
 
 export const SessionExpirationSeconds = 60 * 60 * 24 * 7; // 1 week
 // Probability to run cleanup (10%)
@@ -30,6 +31,23 @@ export class NotAuthenticatedError extends Error {
 }
 
 /**
+ * Creates and returns a signed session JWT from a Session object.
+ * Uses the same payload, HS256 algorithm, and 1-day expiration as setServerSession.
+ */
+export async function createSessionToken(session: Session): Promise<string> {
+  return await new SignJWT({
+    id: session.id,
+    createdAt: session.createdAt,
+    lastAccessed: session.lastAccessed,
+    passwordChangeRequired: session.passwordChangeRequired,
+  })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("1d")
+    .sign(encoder.encode(secret));
+}
+
+/**
  * Returns the user session or throw an error. Make sure to handle the error (return a proper request)
  */
 export async function getServerSessionOrThrow(
@@ -47,38 +65,55 @@ export async function getServerSessionOrThrow(
       }
       return cookies;
     }, {});
-  const sessionCookie = cookies[CookieName];
-
-  if (!sessionCookie) {
-    throw new NotAuthenticatedError();
-  }
-  try {
+   const sessionCookie = cookies[CookieName];
+ 
+   if (!sessionCookie) {
+    // Fall back to Authorization header for native mobile clients
+    const authHeader = request.headers.get("authorization") || "";
+    if (authHeader.startsWith("Bearer ")) {
+      const bearerToken = authHeader.slice(7).trim();
+      if (bearerToken) {
+        try {
+          const { payload } = await jwtVerify(bearerToken, encoder.encode(secret));
+          logNativeRequestProbe(request, "auth-session-check", { outcome: "ok-bearer" });
+          return {
+            id: payload.id as string,
+            createdAt: payload.createdAt as number,
+            lastAccessed: payload.lastAccessed as number,
+            passwordChangeRequired: payload.passwordChangeRequired as boolean,
+          };
+        } catch (error) {
+          logNativeRequestProbe(request, "auth-session-check", { outcome: "jwt-invalid" });
+          throw new NotAuthenticatedError();
+        }
+      }
+    }
+    // TEMPORARY DIAGNOSTIC: Probe native app requests
+    logNativeRequestProbe(request, "auth-session-check", { outcome: "no-cookie" });
+     throw new NotAuthenticatedError();
+   }
+   try {
     const { payload } = await jwtVerify(sessionCookie, encoder.encode(secret));
+    // TEMPORARY DIAGNOSTIC: Probe native app requests
+    logNativeRequestProbe(request, "auth-session-check", { outcome: "ok-cookie" });
     return {
       id: payload.id as string,
       createdAt: payload.createdAt as number,
       lastAccessed: payload.lastAccessed as number,
       passwordChangeRequired: payload.passwordChangeRequired as boolean,
-    };
-  } catch (error) {
+     };
+   } catch (error) {
+     // TEMPORARY DIAGNOSTIC: Probe native app requests
+    logNativeRequestProbe(request, "auth-session-check", { outcome: "jwt-invalid" });
     throw new NotAuthenticatedError();
   }
-}
+ }
 
 export async function setServerSession(
   response: Response,
   session: Session
 ): Promise<void> {
-  const token = await new SignJWT({
-    id: session.id,
-    createdAt: session.createdAt,
-    lastAccessed: session.lastAccessed,
-    passwordChangeRequired: session.passwordChangeRequired,
-  })
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime("1d")
-    .sign(encoder.encode(secret));
+  const token = await createSessionToken(session);
 
   const cookieValue = [
     `${CookieName}=${token}`,

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import superjson from "superjson";
+import { nativeSessionToken } from "../../helpers/nativeSessionToken";
 
 // No input required for logout
 export const schema = z.object({});
@@ -27,5 +28,6 @@ export const postLogout = async (
       ...(init?.headers ?? {}),
     },
   });
+  nativeSessionToken.clear();
   return superjson.parse<OutputType>(await result.text());
 };

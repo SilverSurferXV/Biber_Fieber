@@ -2,6 +2,16 @@
 
 Dieses Dokument erläutert, wie Updates für die "Biber Fieber"-App (Capacitor/Floot) an Nutzer ausgeliefert werden können, ohne jedes Mal den Prüfprozess von Apple durchlaufen zu müssen.
 
+## Status: Entscheidung getroffen – Option A (25.08.2026)
+Es wurde final entschieden, **Option A (Remote-Bundle)** umzusetzen. Der Grund hierfür ist nicht mehr nur die Bequemlichkeit, sondern die Tatsache, dass das bisherige lokale Bundle (Option C) technisch nicht mit dem Floot-Backend kompatibel ist.
+
+**Diagnose der Ausfälle:**
+* Die installierte native App liefert aktuell ein lokales Web-Bundle aus. Messungen (Boot-Pings) zeigen, dass iOS unter `capacitor://localhost` und Android unter `https://localhost/` läuft.
+* Relative API-Aufrufe (`/_api/...`) landen daher auf dem lokalen Capacitor-Server, der keine API hat und stattdessen die gebündelte `index.html` zurückgibt. Der Versuch, dieses HTML als JSON zu parsen, führt zum bekannten Fehler: `"JSON Parse error: Unrecognized token '<'"`.
+* Der automatische Fallback-Retry gegen die Live-Domain (`https://biberfieber.floot.app`) wird vom Browser blockiert (CORS), da das Floot-Backend keine CORS-Header sendet. Tests haben bestätigt: Weder ein einfaches GET, noch GET mit Credentials, noch GET mit Authorization-Header kommen durch. Lediglich ein Request mit `mode: "no-cors"` liefert eine (undurchsichtige) Antwort.
+* Nur Fire-and-Forget-Diagnosedaten via `navigator.sendBeacon` (die kein CORS-Preflight benötigen) erreichen den Server. Das erklärt, warum Start-Pings in den Logs auftauchen, aber keine Livedaten (Guthaben, Admin-Bereich, Bestellungen) geladen werden. Bilder funktionieren, da `<img>`-Tags keinen CORS-Beschränkungen unterliegen.
+* **Fazit:** Option C ist defekt und lässt sich nicht durch Code-Änderungen im Floot-Projekt beheben. Die Umstellung auf Option A (Remote-Bundle) löst das Problem, da die App dann im *Same-Origin*-Kontext läuft.
+
 ## 1. Grundregel: Apple prüft nur Binaries
 Apple prüft bei App-Updates ausschließlich **neue Binaries** (die hochgeladene Datei im App Store Connect). Alles, was nicht fest in diese Datei eingebaut ist, kann jederzeit geändert werden, ohne dass ein Review nötig ist.
 * **Kein Review nötig:** Interne TestFlight-Tester (sofort verfügbar).
@@ -60,19 +70,55 @@ Die klassische Methode, bei der alle Web-Dateien fest in die App eingebaut sind.
 | :--- | :--- | :--- | :--- |
 | **Review nötig für Frontend-Updates?** | Nein | Nein | Ja |
 | **Zeit bis Nutzer das Update sehen** | Sofort (beim nächsten App-Start) | Kurz (meist im Hintergrund nachgeladen) | Tage (abhängig vom Apple-Review) |
-| **Offline-Start der App** | Nein (nur Fehlerseite) | Ja | Ja |
+| **Offline-Start der App** | Nein (nur Fehlerseite) | Ja | Ja (aktuell defekt wg. CORS) |
 | **Zusatzkosten** | Keine | Ja (für OTA-Dienst) | Keine |
 | **Einrichtungsaufwand** | Gering | Mittel bis Hoch | Keiner |
 | **Risiko bei Erstabgabe (Apple)** | Mittel | Gering | Gering |
 
 ---
 
-## 6. Empfehlung
+## 6. Empfehlung & Entscheidung
 
-Für diese App ("Biber Fieber") empfehlen wir **Option A (Remote-Bundle)** als den schnellsten und einfachsten Weg.
-Da der Lieferdienst für fast alle Funktionen zwingend eine aktive Internetverbindung benötigt (Bestellungen, Produkte laden, API-Calls), ist eine echte Offline-Fähigkeit des Frontends kaum von Nutzen. Option A vereinfacht zudem die Cookie-Verwaltung massiv (Same-Origin) und sorgt dafür, dass Web- und App-Nutzer immer exakt denselben Stand sehen, ohne dass separate Build-Pipelines gepflegt werden müssen.
+Die Entscheidung ist auf **Option A (Remote-Bundle)** gefallen. 
+Da der Lieferdienst für fast alle Funktionen zwingend eine aktive Internetverbindung benötigt (Bestellungen, Produkte laden, API-Calls), ist eine echte Offline-Fähigkeit des Frontends kaum von Nutzen. Option A vereinfacht die Cookie-Verwaltung massiv (Same-Origin), umgeht die CORS-Probleme des lokalen Bundles vollständig und sorgt dafür, dass Web- und App-Nutzer immer exakt denselben Stand sehen, ohne dass separate Build-Pipelines gepflegt werden müssen.
 
-Sollte ein extrem schneller Start der App (aus dem Cache) und kontrollierte Rollouts wichtiger sein als der Einrichtung- und Pflegeaufwand, ist **Option B (OTA-Live-Updates)** die beste Alternative.
+## 7. Implementierung von Option A
 
-## 7. Nächste Schritte
-Sobald eine Entscheidung für Option A oder B getroffen wurde, kann ein konkreter Umsetzungsplan erstellt werden. Dieser umfasst dann die nötigen Anpassungen an der Capacitor-Config bzw. die Integration des OTA-Plugins in den Codemagic-Workflow. Aktuell müssen dafür noch keine Code-Änderungen vorgenommen werden.
+Um die App auf das Remote-Bundle umzustellen, müssen folgende Schritte im nativen Projekt (außerhalb von Floot) durchgeführt werden:
+
+1. **Anpassung der Capacitor-Konfiguration**
+   In der Datei `capacitor.config.ts` (oder `.json`) muss der `server`-Block hinzugefügt werden:
+   ```typescript
+   import { CapacitorConfig } from '@capacitor/cli';
+
+   const config: CapacitorConfig = {
+     appId: '...', // Beibehalten
+     appName: '...', // Beibehalten
+     webDir: '...', // Beibehalten
+     server: {
+       url: "https://biberfieber.floot.app",
+       cleartext: false,
+       allowNavigation: ["biberfieber.floot.app"]
+       // Optional: errorPath: "error.html" (Für eine lokale Fehlerseite bei Offline-Start)
+     }
+   };
+   export default config;
+   ```
+
+2. **Sync & Build**
+   Anschließend müssen die nativen Projekte aktualisiert werden:
+   ```bash
+   npx cap sync ios
+   npx cap sync android
+   ```
+   Danach erfolgt ein neuer Build über Codemagic und der Upload zu App Store Connect / Google Play Console. Da sich die native Konfiguration ändert, muss dieser eine Build durch das App-Review gehen. Danach sind Frontend-Updates sofort ohne Review live.
+
+**Wichtige Hinweise zur Umstellung:**
+* **Erneuter Login:** Nutzer müssen sich nach dem Update einmalig neu anmelden, da der Session-Cookie nun zur Live-Domain (`biberfieber.floot.app`) statt zum lokalen Ursprung (`localhost`) gehört.
+* **Keine Code-Änderungen in Floot nötig:** Die bestehenden Helfer funktionieren weiterhin. `resolveFileUrl` liefert automatisch den korrekten Pfad, da der Hostname nicht mehr `localhost` ist. `isNativeApp` und `getClientPlatform` erkennen weiterhin korrekt die native App-Umgebung. Der `apiFetchGuard` bleibt als allgemeines Sicherheitsnetz aktiv, muss aber keine URLs mehr umschreiben.
+* **Zahlungsanbieter:** Stripe und PayPal funktionieren weiterhin problemlos. Deren UIs laufen in Iframes bzw. Popups, welche von der `allowNavigation`-Restriktion nicht beeinträchtigt werden.
+
+## 8. Nächste Schritte
+* Anpassung der `capacitor.config.ts` im nativen Repository/Build-Prozess.
+* Erstellen einer rudimentären lokalen `error.html` für den Offline-Fall (optional, aber empfohlen).
+* Durchführung des Codemagic-Builds und Einreichen der neuen Binaries bei Apple und Google.

@@ -3,6 +3,7 @@ import { schema } from "./register_with_password_POST.schema";
 import { randomBytes } from "crypto";
 import {
   setServerSession,
+  createSessionToken,
   SessionExpirationSeconds,
 } from "../../helpers/getSetServerSession";
 import { generatePasswordHash } from "../../helpers/generatePasswordHash";
@@ -198,8 +199,14 @@ export async function handle(request: Request) {
       mobileNumber: newUser.mobileNumber ?? null,
     };
 
+    const sessionToken = await createSessionToken({
+      id: sessionId,
+      createdAt: now.getTime(),
+      lastAccessed: now.getTime(),
+    });
+
     const response = new Response(
-      superjson.stringify({ user: userData satisfies User }),
+      superjson.stringify({ user: userData satisfies User, sessionToken }),
       {
         headers: {
           "Content-Type": "application/json",

@@ -1,5 +1,6 @@
 import { isNativeApp } from "./isNativeApp";
 import { getClientPlatform } from "./getClientPlatform";
+import { nativeSessionToken } from "./nativeSessionToken";
 
 export const PUBLISHED_ORIGIN = "https://biberfieber.floot.app";
 
@@ -20,6 +21,7 @@ function needsAbsoluteBase(): boolean {
 }
 
 let forceAbsoluteBase = false;
+let authorizationHeaderDisabled = false;
 
 export function installApiFetchGuard() {
   if (typeof window === "undefined") {
@@ -93,6 +95,45 @@ export function installApiFetchGuard() {
     } else if (reqObj) {
       // Clone so we don't consume the caller's Request object in the first attempt
       targetInput = reqObj.clone();
+    }
+
+    // Attach Authorization header for native app session fallback
+    const token = nativeSessionToken.get();
+    let addedAuthorization = false;
+    
+    if (token && !authorizationHeaderDisabled) {
+      let currentHeaders = new Headers(targetInit?.headers);
+      
+      // Also pull from Request if we built one
+      if (reqObj && targetInput instanceof Request) {
+        currentHeaders = new Headers(targetInput.headers);
+        if (targetInit?.headers) {
+            const initHeaders = new Headers(targetInit.headers);
+            initHeaders.forEach((value, key) => currentHeaders.set(key, value));
+        }
+      }
+
+      if (!currentHeaders.has("authorization")) {
+        currentHeaders.set("Authorization", `Bearer ${token}`);
+        addedAuthorization = true;
+
+        if (targetInput instanceof Request) {
+          const originalReq = targetInput;
+          targetInput = new Request(targetInput.url, {
+            method: originalReq.method,
+            headers: currentHeaders,
+            body: originalReq.body,
+            mode: originalReq.mode,
+            credentials: originalReq.credentials,
+            cache: originalReq.cache,
+            redirect: originalReq.redirect,
+            referrer: originalReq.referrer,
+            integrity: originalReq.integrity,
+          });
+        } else {
+          targetInit = { ...(targetInit || {}), headers: currentHeaders };
+        }
+      }
     }
 
     try {
@@ -203,6 +244,45 @@ export function installApiFetchGuard() {
       // Safe JSON or binary response
       return response;
     } catch (err) {
+      // If a network/CORS error occurred while we added an Authorization header,
+      // retry once without it and disable adding it for the rest of the session.
+      if (addedAuthorization && !authorizationHeaderDisabled) {
+        console.warn("[apiFetchGuard] Network/CORS error with Authorization header. Retrying without it.");
+        
+        authorizationHeaderDisabled = true;
+
+        const diagnostic = {
+          url: targetUrlStr,
+          href: window.location.href,
+          origin: window.location.origin,
+          platform: getClientPlatform(),
+          userAgent: navigator.userAgent,
+          message: "Authorization header rejected or caused CORS error, disabled for session.",
+        };
+        navigator.sendBeacon(
+          `${PUBLISHED_ORIGIN}/_api/diagnostics/client-error`,
+          new Blob([JSON.stringify(diagnostic)], { type: "text/plain" })
+        );
+
+        // Construct inputs for retry without the Authorization header
+        let retryInput: RequestInfo | URL = input;
+        let retryInit = init ? { ...init } : undefined;
+
+        if (shouldRewrite && (parsedUrl.origin === window.location.origin || parsedUrl.hostname === "localhost" || (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:"))) {
+          const retryUrlStr = `${PUBLISHED_ORIGIN}${parsedUrl.pathname}${parsedUrl.search}`;
+          if (reqObj) {
+            retryInput = new Request(retryUrlStr, reqObj.clone());
+          } else {
+            retryInput = retryUrlStr;
+          }
+          retryInit = { ...(retryInit || {}), credentials: "include" };
+        } else if (reqObj) {
+          retryInput = reqObj.clone();
+        }
+
+        return originalFetch(retryInput, retryInit);
+      }
+
       if (
         err instanceof Error &&
         err.message.includes("Verbindung zum Server fehlgeschlagen")

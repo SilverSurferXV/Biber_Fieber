@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { User } from "../../helpers/User";
 import superjson from "superjson";
+import { nativeSessionToken } from "../../helpers/nativeSessionToken";
 
 const salutationEnum = z.enum(["Herr", "Frau", "Herr Dr.", "Frau Dr.", "Firma"]);
 
@@ -21,6 +22,7 @@ export const schema = z.object({
 
 export type OutputType = {
   user: User;
+  sessionToken?: string;
 };
 
 export const postRegister = async (
@@ -44,5 +46,9 @@ export const postRegister = async (
     throw new Error(errorData.message || "Registration failed");
   }
 
-  return superjson.parse<OutputType>(await result.text());
+  const parsed = superjson.parse<OutputType>(await result.text());
+  if (parsed.sessionToken) {
+    nativeSessionToken.set(parsed.sessionToken);
+  }
+  return parsed;
 };

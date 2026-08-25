@@ -5,6 +5,7 @@ import { compare } from "bcryptjs";
 import { randomBytes } from "crypto";
 import {
   setServerSession,
+  createSessionToken,
   SessionExpirationSeconds,
 } from "../../helpers/getSetServerSession";
 import { User } from "../../helpers/User";
@@ -256,8 +257,14 @@ export async function handle(request: Request) {
       mobileNumber: user.mobileNumber ?? null,
     };
 
+    const sessionToken = await createSessionToken({
+      id: result.sessionId,
+      createdAt: result.sessionCreatedAt.getTime(),
+      lastAccessed: result.sessionCreatedAt.getTime(),
+    });
+
     const response = new Response(
-      superjson.stringify({ user: userData } satisfies { user: User }),
+      superjson.stringify({ user: userData, sessionToken } satisfies { user: User, sessionToken: string }),
       {
         headers: { "Content-Type": "application/json" },
       }

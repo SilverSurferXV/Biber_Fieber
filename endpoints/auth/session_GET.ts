@@ -1,5 +1,6 @@
 import {
   setServerSession,
+  createSessionToken,
   NotAuthenticatedError,
 } from "../../helpers/getSetServerSession";
 import { User } from "../../helpers/User";
@@ -9,6 +10,13 @@ import superjson from "superjson";
 export async function handle(request: Request) {
   try {
     const { user, session } = await getServerUserSession(request);
+
+    // Create a freshly signed token for native clients to refresh their stored token
+    const sessionToken = await createSessionToken({
+      id: session.id,
+      createdAt: session.createdAt,
+      lastAccessed: session.lastAccessed,
+    });
 
     // Create response with user data
     const response = new Response(
@@ -27,6 +35,7 @@ export async function handle(request: Request) {
           bibercode: user.bibercode,
           mobileNumber: user.mobileNumber ?? null,
         } satisfies User,
+        sessionToken,
       }),
       {
         headers: {

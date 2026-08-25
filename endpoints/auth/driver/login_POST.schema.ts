@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { User } from "../../../helpers/User";
 import superjson from "superjson";
+import { nativeSessionToken } from "../../../helpers/nativeSessionToken";
 
 export const schema = z.object({
   identifier: z.string().min(1, "Identifier (Email/Mobile) is required"),
@@ -10,6 +11,7 @@ export const schema = z.object({
 
 export type OutputType = {
   user: User;
+  sessionToken?: string;
 };
 
 export const postDriverLogin = async (
@@ -33,5 +35,9 @@ export const postDriverLogin = async (
     throw new Error(errorData.message || "Login failed");
   }
 
-  return superjson.parse<OutputType>(await result.text());
+  const parsed = superjson.parse<OutputType>(await result.text());
+  if (parsed.sessionToken) {
+    nativeSessionToken.set(parsed.sessionToken);
+  }
+  return parsed;
 };
