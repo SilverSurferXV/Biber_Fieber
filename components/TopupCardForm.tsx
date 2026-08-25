@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from './Button';
 import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { ExternalLink } from 'lucide-react';
 import { useConfirmTopup } from '../helpers/useStripeTopup';
 import { useTranslation } from '../helpers/useTranslation';
 import { toast } from 'sonner';
@@ -30,6 +31,16 @@ export const TopupCardForm = ({
   const elements = useElements();
   const { mutateAsync: confirmTopup, isPending } = useConfirmTopup();
   const [isProcessing, setIsProcessing] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const isRedirectMethod = ['klarna', 'klarna_sofort', 'amazon_pay'].includes(paymentMethod);
+  const providerName = paymentMethod === 'amazon_pay' ? 'Amazon Pay' : 'Klarna';
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +48,13 @@ export const TopupCardForm = ({
 
     setIsProcessing(true);
     
+    if (isRedirectMethod) {
+      timeoutRef.current = setTimeout(() => {
+        setIsProcessing(false);
+        toast.error(t("topup.redirect_blocked", { provider: providerName }));
+      }, 12000);
+    }
+
     const defaultReturnUrl = `${window.location.origin}/account?tab=guthaben&payment_intent=${paymentIntentId}&topup_amount=${amount}&topup_method=${paymentMethod}`;
 
     const { error, paymentIntent } = await stripe.confirmPayment({
@@ -46,6 +64,8 @@ export const TopupCardForm = ({
       },
       redirect: 'if_required'
     });
+
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     if (error) {
       toast.error(error.message || t("topup.failed"));
@@ -71,6 +91,12 @@ export const TopupCardForm = ({
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
+      {isRedirectMethod && (
+        <div className={styles.redirectNotice}>
+          <ExternalLink size={18} className={styles.redirectIcon} />
+          <span>{t("topup.redirect_notice", { provider: providerName })}</span>
+        </div>
+      )}
       <PaymentElement />
       <div className={styles.actions}>
         {onCancel && (

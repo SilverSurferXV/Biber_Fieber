@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './Dialog';
 import { Button } from './Button';
-import { CreditCard, Wallet, BadgeEuro } from 'lucide-react';
+import { CreditCard, Wallet, BadgeEuro, ShoppingBag, ExternalLink, RefreshCw } from 'lucide-react';
+import { isNativeApp } from '../helpers/isNativeApp';
+import { useStartRedirectTopup, useRedirectTopupStatus } from '../helpers/useRedirectTopup';
+import { Spinner } from './Spinner';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { STRIPE_PUBLISHABLE_KEY, PAYPAL_CLIENT_ID } from '../helpers/_publicConfigs';
-import { useCreatePaymentIntent, useConfirmTopup } from '../helpers/useStripeTopup';
+import { useCreatePaymentIntent } from '../helpers/useStripeTopup';
 import { useCreatePaypalOrder, useCapturePaypalOrder } from '../helpers/usePaypalTopup';
 import { useTranslation } from '../helpers/useTranslation';
 import { toast } from 'sonner';
-import { Skeleton } from './Skeleton';
-import { WalletExpressCheckout } from './WalletExpressCheckout';
 import { TopupCardForm } from './TopupCardForm';
-import { isNativeApp } from '../helpers/isNativeApp';
-import { nativeStripeWallet } from '../helpers/nativeStripeWallet';
-import { NativeWalletButton } from './NativeWalletButton';
 import styles from './TopupPaymentDialog.module.css';
 
 const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
@@ -78,111 +76,70 @@ export const TopupPaymentDialog = ({
   amount: number 
 }) => {
   const { t } = useTranslation();
-  const [step, setStep] = useState<'select' | 'payment' | 'paypal'>('select');
+  const [step, setStep] = useState<'select' | 'payment' | 'paypal' | 'external'>('select');
+  const [redirectUrl, setRedirectUrl] = useState<string>('');
   
   const PaymentMethods = [
     { id: 'klarna', label: 'Klarna', icon: BadgeEuro },
     { id: 'klarna_sofort', label: t("topup.sofort"), icon: BadgeEuro },
     { id: 'paypal', label: 'PayPal', icon: Wallet },
+    { id: 'amazon_pay', label: 'Amazon Pay', icon: ShoppingBag },
     { id: 'credit_card', label: t("topup.cc"), icon: CreditCard },
   ];
+  
   const [paymentMethod, setPaymentMethod] = useState<string>('');
   const [clientSecret, setClientSecret] = useState<string>('');
   const [paymentIntentId, setPaymentIntentId] = useState<string>('');
-  const [walletsAvailable, setWalletsAvailable] = useState<boolean | null>(null);
-  const [intentError, setIntentError] = useState<string | null>(null);
-
-  const [nativeWalletAvailability, setNativeWalletAvailability] = useState<{ applePay: boolean; googlePay: boolean; pluginAvailable: boolean } | null>(null);
-  const [isNativeWalletProcessing, setIsNativeWalletProcessing] = useState(false);
-  const { mutateAsync: confirmTopup } = useConfirmTopup();
-
-  useEffect(() => {
-    if (isNativeApp() && isOpen && nativeWalletAvailability === null) {
-      nativeStripeWallet.getAvailability().then(avail => {
-        setNativeWalletAvailability(avail);
-      }).catch(err => {
-        console.error("Failed to check native wallet availability", err);
-        setNativeWalletAvailability({ applePay: false, googlePay: false, pluginAvailable: false });
-      });
-    }
-  }, [isOpen, nativeWalletAvailability]);
-
-  const handleNativeWalletPay = async (kind: "apple_pay" | "google_pay") => {
-    setIsNativeWalletProcessing(true);
-    try {
-      const res = await createIntent({ amount: amount as any, paymentMethod: 'credit_card' as any });
-      const payResult = await nativeStripeWallet.pay({
-        kind,
-        clientSecret: res.clientSecret,
-        amount,
-        label: t("topup.wallet_native_label"),
-      });
-
-      if (payResult === "completed") {
-        const confirmRes = await confirmTopup({
-          paymentIntentId: res.paymentIntentId,
-          amount: amount as any,
-          paymentMethod: kind === "apple_pay" ? "apple_pay" : "gpay",
-        });
-        toast.success(t("topup.success", { points: confirmRes.pointsCredited }));
-        handleClose();
-      } else if (payResult === "canceled") {
-        toast.info(t("topup.wallet_native_canceled"));
-      } else {
-        toast.error(t("topup.wallet_native_failed"));
-      }
-    } catch (err: any) {
-      console.error("Native wallet pay error:", err);
-      toast.error(err.message || t("topup.wallet_native_failed"));
-    } finally {
-      setIsNativeWalletProcessing(false);
-    }
-  };
-
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>;
-    if (clientSecret && walletsAvailable === null && step === 'select') {
-      timeout = setTimeout(() => {
-        setWalletsAvailable(false);
-      }, 5000);
-    }
-    return () => clearTimeout(timeout);
-  }, [clientSecret, walletsAvailable, step]);
   
   const { mutateAsync: createIntent, isPending: isCreatingIntent } = useCreatePaymentIntent();
+  const { mutateAsync: startRedirectTopup, isPending: isStartingRedirect } = useStartRedirectTopup();
+
+  const statusQuery = useRedirectTopupStatus({
+    paymentIntentId,
+    amount: amount as any,
+    paymentMethod,
+    enabled: step === 'external',
+  });
 
   useEffect(() => {
-    if (!isNativeApp() && isOpen && !clientSecret && !intentError) {
-      setWalletsAvailable(null);
-      createIntent({ amount: amount as any, paymentMethod: 'credit_card' as any })
-        .then((res) => {
-          setClientSecret(res.clientSecret);
-          setPaymentIntentId(res.paymentIntentId);
-        })
-        .catch((e: any) => {
-          const message = e instanceof Error ? e.message : "Unknown error";
-          setIntentError(message);
-          toast.error(message);
-        });
+    if (step !== 'external' || !statusQuery.data) return;
+    const { status, pointsCredited } = statusQuery.data;
+    if (status === 'succeeded') {
+      if (pointsCredited !== null) {
+        toast.success(t("topup.success", { points: pointsCredited }));
+      } else {
+        toast.success(t("topup.external.credited"));
+      }
+      handleClose();
+    } else if (status === 'canceled' || status === 'requires_payment_method') {
+      toast.error(t("topup.external.failed"));
+      setStep('select');
     }
-  }, [isOpen, clientSecret, intentError, amount, createIntent]);
-
-  const handleRetryIntent = () => {
-    setIntentError(null);
-    setClientSecret('');
-    setPaymentIntentId('');
-  };
+  }, [statusQuery.data, step]);
 
   const handleSelectMethod = async (method: string) => {
     setPaymentMethod(method);
     
-    if (method === 'paypal') {
-      setStep('paypal');
+    const isRedirectMethod = ['klarna', 'klarna_sofort', 'amazon_pay'].includes(method);
+    if (isNativeApp() && isRedirectMethod) {
+      try {
+        const res = await startRedirectTopup({ amount: amount as any, paymentMethod: method as any });
+        setPaymentIntentId(res.paymentIntentId);
+        setRedirectUrl(res.redirectUrl);
+        setStep('external');
+        
+        const newWindow = window.open(res.redirectUrl, "_blank");
+        if (!newWindow) {
+          toast.error(t("topup.external.popup_blocked"));
+        }
+      } catch (e: any) {
+        toast.error(e.message);
+      }
       return;
     }
 
-    if (method === 'credit_card' && clientSecret) {
-      setStep('payment');
+    if (method === 'paypal') {
+      setStep('paypal');
       return;
     }
 
@@ -201,14 +158,9 @@ export const TopupPaymentDialog = ({
     setPaymentMethod('');
     setClientSecret('');
     setPaymentIntentId('');
-    setWalletsAvailable(null);
-    setIntentError(null);
+    setRedirectUrl('');
     onClose();
   };
-
-  const showWalletLoading = !intentError && !clientSecret;
-  const showWalletSection = clientSecret && walletsAvailable !== false;
-  const showWalletUnavailableHint = clientSecret && walletsAvailable === false;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
@@ -221,99 +173,20 @@ export const TopupPaymentDialog = ({
         </DialogHeader>
         
         {step === 'select' && (
-          <>
-            {intentError ? (
-              <div className={styles.errorContainer}>
-                <p className={styles.errorText}>{intentError}</p>
-                <Button variant="outline" onClick={handleRetryIntent}>
-                  {t("topup.retry")}
-                </Button>
-              </div>
-            ) : (
-              <>
-                {isNativeApp() && (nativeWalletAvailability === null || nativeWalletAvailability.applePay || nativeWalletAvailability.googlePay) && (
-                  <div className={styles.walletSection}>
-                    {nativeWalletAvailability === null ? (
-                      <>
-                        <h4 className={styles.walletsTitle}>{t("topup.wallets_title")}</h4>
-                        <div className={styles.walletSkeletonWrapper}>
-                          <Skeleton className={styles.walletSkeleton} />
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <h4 className={styles.walletsTitle}>{t("topup.wallet_native_title")}</h4>
-                        {nativeWalletAvailability.applePay && (
-                          <NativeWalletButton 
-                            kind="apple_pay"
-                            onClick={() => handleNativeWalletPay("apple_pay")} 
-                            isProcessing={isNativeWalletProcessing}
-                          />
-                        )}
-                        {nativeWalletAvailability.googlePay && (
-                          <NativeWalletButton 
-                            kind="google_pay"
-                            onClick={() => handleNativeWalletPay("google_pay")} 
-                            isProcessing={isNativeWalletProcessing}
-                          />
-                        )}
-                      </>
-                    )}
-                  </div>
-                )}
-                
-                {!isNativeApp() && showWalletLoading && (
-                  <div className={styles.walletSection}>
-                    <h4 className={styles.walletsTitle}>{t("topup.wallets_title")}</h4>
-                    <div className={styles.walletSkeletonWrapper}>
-                      <Skeleton className={styles.walletSkeleton} />
-                    </div>
-                  </div>
-                )}
-
-                {!isNativeApp() && showWalletSection && (
-                  <div className={styles.walletSection}>
-                    <h4 className={styles.walletsTitle}>{t("topup.wallets_title")}</h4>
-                    <Elements stripe={stripePromise} options={{ clientSecret }}>
-                      <WalletExpressCheckout 
-                        amount={amount}
-                        paymentIntentId={paymentIntentId}
-                        onSuccess={handleClose}
-                        onReady={(available, _methods) => setWalletsAvailable(available)}
-                      />
-                    </Elements>
-                  </div>
-                )}
-
-                {!isNativeApp() && showWalletUnavailableHint && (
-                  <div className={styles.walletUnavailableHint}>
-                    {t("topup.wallets_unavailable")}
-                  </div>
-                )}
-
-                {((isNativeApp() && (nativeWalletAvailability === null || nativeWalletAvailability.applePay || nativeWalletAvailability.googlePay)) || walletsAvailable === true) && (
-                  <div className={styles.divider}>
-                    <span className={styles.dividerText}>{t("topup.or_other")}</span>
-                  </div>
-                )}
-
-                <div className={styles.methodGrid}>
-                  {PaymentMethods.map(m => (
-                    <button 
-                      key={m.id} 
-                      className={styles.methodCard} 
-                      onClick={() => handleSelectMethod(m.id)}
-                      disabled={isCreatingIntent}
-                      type="button"
-                    >
-                      <m.icon size={24} className={styles.methodIcon} />
-                      <span>{m.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </>
+          <div className={styles.methodGrid}>
+            {PaymentMethods.map(m => (
+              <button 
+                key={m.id} 
+                className={styles.methodCard} 
+                onClick={() => handleSelectMethod(m.id)}
+                disabled={isCreatingIntent || isStartingRedirect}
+                type="button"
+              >
+                <m.icon size={24} className={styles.methodIcon} />
+                <span>{m.label}</span>
+              </button>
+            ))}
+          </div>
         )}
 
         {step === 'payment' && clientSecret && (
@@ -334,6 +207,38 @@ export const TopupPaymentDialog = ({
             onSuccess={handleClose}
             onCancel={handleClose}
           />
+        )}
+
+        {step === 'external' && (
+          <div className={styles.externalContainer}>
+            <div className={styles.externalIconWrapper}>
+              <Spinner size="lg" />
+            </div>
+            <p className={styles.externalDescription}>
+              {t("topup.external.description", { 
+                provider: paymentMethod === 'amazon_pay' ? 'Amazon Pay' : 
+                          paymentMethod === 'klarna_sofort' ? t("topup.sofort") : 'Klarna' 
+              })}
+            </p>
+            <p className={styles.externalWaiting}>
+              {t("topup.external.waiting")}
+            </p>
+            {redirectUrl && (
+              <Button variant="outline" className={styles.externalReopen} onClick={() => window.open(redirectUrl, "_blank")}>
+                <ExternalLink size={16} />
+                {t("topup.external.reopen")}
+              </Button>
+            )}
+            <div className={styles.externalActions}>
+              <Button variant="ghost" onClick={() => setStep('select')}>
+                {t("topup.cancel")}
+              </Button>
+              <Button onClick={() => statusQuery.refetch()} disabled={statusQuery.isFetching}>
+                <RefreshCw size={16} className={statusQuery.isFetching ? styles.spin : ''} />
+                {statusQuery.isFetching ? t("topup.external.checking") : t("topup.external.check")}
+              </Button>
+            </div>
+          </div>
         )}
       </DialogContent>
     </Dialog>

@@ -1386,11 +1386,11 @@ packages:
     peerDependencies:
       react: ^18 || ^19
 
-  '@trapezedev/gradle-parse@7.1.9':
-    resolution: {integrity: sha512-Qauxr6E7EOnW7cFaXtpbOgbrS2zxjRscBrC6Z6r3mBJaL2rdq6SzqyzIQ90arsH0RYL6k/BKuSK7SpPYW1Q8hg==}
+  '@trapezedev/gradle-parse@7.1.10':
+    resolution: {integrity: sha512-muL6ptcxnqrgrYushL78pLF5GGJSWoo/kk8pb7mQ+Og8eef6zY6XI9iwhVS9bo8yCpuh6EZfq9odKWkGPVB4BQ==}
 
-  '@trapezedev/project@7.1.9':
-    resolution: {integrity: sha512-596Aof5R5sKVirPIrls3RnVkoPdJ/M1xSigJWw2WEz8iC9ViTJiCE00tR2e7vmVvFCsst0KthHjE070au2ReGw==}
+  '@trapezedev/project@7.1.10':
+    resolution: {integrity: sha512-SdmYuV5qCPX+sqOiJ/gIq6dbGav6j/M6OO1F8A6m89hbDi/3FiV1JRnp0FHLqs/wBW2vPHBvts+y7MiHCWuXig==}
     engines: {node: '>=18'}
 
   '@types/d3-array@3.2.2':
@@ -2642,8 +2642,8 @@ packages:
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
-  picomatch@4.0.6:
-    resolution: {integrity: sha512-bXCx4Swq84mgU01b/0qifY6DMxlxszBpLJ8z8elFD5gdpJ758VsAr8UzGvnDszOPHfV1p/292BOYv18XuDs+iA==}
+  picomatch@4.0.7:
+    resolution: {integrity: sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==}
     engines: {node: '>=12'}
 
   pkg-dir@5.0.0:
@@ -3106,8 +3106,8 @@ packages:
     resolution: {integrity: sha512-ujeqbceABgwMZxEJnk2HDY2DlnUZ+9oEcb1KzTVfYHio0UE6dG71n60d8D2I4qNvleWrrXpmjpt7vZeF1LnMZQ==}
     engines: {node: '>=6'}
 
-  tar-stream@3.2.0:
-    resolution: {integrity: sha512-ojzvCvVaNp6aOTFmG7jaRD0meowIAuPc3cMMhSgKiVWws1GyHbGd/xvnyuRKcKlMpt3qvxx6r0hreCNITP9hIg==}
+  tar-stream@3.2.1:
+    resolution: {integrity: sha512-nqsEO8zLZJvrOMdEwkA0QdCLFbetHMn95Zqu4fKwX+hkaTWJPZZOrxx/PwtxoK0MMGQmBQNRW3CPs8IFYQz4cQ==}
 
   tar@6.2.1:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
@@ -3399,7 +3399,7 @@ snapshots:
       '@capacitor/cli': 5.7.8
       '@ionic/utils-array': 2.1.6
       '@ionic/utils-fs': 3.1.7
-      '@trapezedev/project': 7.1.9
+      '@trapezedev/project': 7.1.10
       commander: 8.3.0
       debug: 4.3.4
       fs-extra: 10.1.0
@@ -4342,7 +4342,7 @@ snapshots:
     dependencies:
       '@types/estree': 1.0.9
       estree-walker: 2.0.2
-      picomatch: 4.0.6
+      picomatch: 4.0.7
     optionalDependencies:
       rollup: 4.62.5
 
@@ -4501,14 +4501,14 @@ snapshots:
       '@tanstack/query-core': 5.102.2
       react: 19.2.8
 
-  '@trapezedev/gradle-parse@7.1.9': {}
+  '@trapezedev/gradle-parse@7.1.10': {}
 
-  '@trapezedev/project@7.1.9':
+  '@trapezedev/project@7.1.10':
     dependencies:
       '@ionic/utils-fs': 3.1.7
       '@ionic/utils-subprocess': 2.1.14
       '@prettier/plugin-xml': 2.2.0
-      '@trapezedev/gradle-parse': 7.1.9
+      '@trapezedev/gradle-parse': 7.1.10
       '@xmldom/xmldom': 0.9.12
       cross-spawn: 7.0.6
       diff: 5.2.2
@@ -5230,9 +5230,9 @@ snapshots:
     dependencies:
       pend: 1.2.0
 
-  fdir@6.5.0(picomatch@4.0.6):
+  fdir@6.5.0(picomatch@4.0.7):
     optionalDependencies:
-      picomatch: 4.0.6
+      picomatch: 4.0.7
 
   find-up@5.0.0:
     dependencies:
@@ -5850,7 +5850,7 @@ snapshots:
 
   picocolors@1.1.1: {}
 
-  picomatch@4.0.6: {}
+  picomatch@4.0.7: {}
 
   pkg-dir@5.0.0:
     dependencies:
@@ -6425,7 +6425,7 @@ snapshots:
   tar-fs@3.1.3:
     dependencies:
       pump: 3.0.4
-      tar-stream: 3.2.0
+      tar-stream: 3.2.1
     optionalDependencies:
       bare-fs: 4.8.1
       bare-path: 3.1.1
@@ -6442,7 +6442,7 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
 
-  tar-stream@3.2.0:
+  tar-stream@3.2.1:
     dependencies:
       b4a: 1.8.1
       bare-fs: 4.8.1
@@ -6496,8 +6496,8 @@ snapshots:
 
   tinyglobby@0.2.17:
     dependencies:
-      fdir: 6.5.0(picomatch@4.0.6)
-      picomatch: 4.0.6
+      fdir: 6.5.0(picomatch@4.0.7)
+      picomatch: 4.0.7
 
   to-buffer@1.2.2:
     dependencies:
@@ -6621,8 +6621,8 @@ snapshots:
   vite@6.4.3(@types/node@26.2.0)(terser@5.50.0):
     dependencies:
       esbuild: 0.25.12
-      fdir: 6.5.0(picomatch@4.0.6)
-      picomatch: 4.0.6
+      fdir: 6.5.0(picomatch@4.0.7)
+      picomatch: 4.0.7
       postcss: 8.5.26
       rollup: 4.62.5
       tinyglobby: 0.2.17

@@ -41,6 +41,8 @@ export async function handle(request: Request) {
       paymentMethodTypes = ["klarna"];
     } else if (input.paymentMethod === "paypal") {
       paymentMethodTypes = ["paypal"];
+    } else if (input.paymentMethod === "amazon_pay") {
+      paymentMethodTypes = ["amazon_pay"];
     }
 
      const paymentIntent = await stripe.paymentIntents.create({

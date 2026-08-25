@@ -183,6 +183,7 @@ export async function handle(request: Request) {
         new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(amount);
 
       const paymentMethodLabels: Record<string, string> = {
+        amazon_pay: "Amazon Pay",
         apple_pay: "Apple Pay",
         credit_card: "Kreditkarte",
         gpay: "Google Pay",

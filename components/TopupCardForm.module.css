@@ -11,3 +11,22 @@
   gap: var(--spacing-2);
   margin-top: var(--spacing-4);
 }
+
+.redirectNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-3);
+  color: var(--foreground);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.redirectIcon {
+  flex-shrink: 0;
+  color: var(--muted-foreground);
+  margin-top: 2px;
+}

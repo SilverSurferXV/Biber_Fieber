@@ -112,7 +112,7 @@ export const GlobalContextProviders = ({
     const newIcon = document.createElement("link");
     newIcon.rel = "icon";
     newIcon.type = "image/png";
-    newIcon.href = resolveFileUrl("/_cdn/static/project-icon.png");
+    newIcon.href = resolveFileUrl("/_cdn/static/project-icon-64.png");
     document.head.appendChild(newIcon);
   }, []);
 
@@ -170,8 +170,8 @@ export const GlobalContextProviders = ({
           <Helmet>
           <meta name="theme-color" content="#2e2e2e" />
           <link rel="manifest" href="/manifest.json" />
-          <link rel="icon" type="image/png" href={resolveFileUrl("/_cdn/static/project-icon.png")} />
-          <link rel="apple-touch-icon" href={resolveFileUrl("/_cdn/static/project-icon.png")} />
+          <link rel="icon" type="image/png" sizes="64x64" href={resolveFileUrl("/_cdn/static/project-icon-64.png")} />
+          <link rel="apple-touch-icon" sizes="180x180" href={resolveFileUrl("/_cdn/static/project-icon-180.png")} />
           <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         </Helmet>

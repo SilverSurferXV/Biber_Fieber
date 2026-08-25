@@ -18,23 +18,23 @@ export default function AboutPage() {
 
   const sections: Section[] = [
     {
-      src: "/_cdn/static/biber-fieber-hero.jpg",
+      src: "/_cdn/static/biber-fieber-hero.webp",
       alt: "Bist du schon im Biber Fieber?"
     },
     {
-      src: "/_cdn/static/biber-familie.jpg",
+      src: "/_cdn/static/biber-familie.webp",
       alt: "Biber Familie",
       link: "/account?tab=spenden",
       label: t("about.biber_smile")
     },
     {
-      src: "/_cdn/static/biber-bonus.jpg",
+      src: "/_cdn/static/biber-bonus.webp",
       alt: "Biber Bonus",
       link: "/account?tab=guthaben",
       label: t("about.topup_balance")
     },
     {
-      src: "/_cdn/static/biber-freunde.jpg",
+      src: "/_cdn/static/biber-freunde.webp",
       alt: "Biber Freunde",
       link: "/account?tab=bibercode",
       label: t("about.biber_friends")
@@ -51,7 +51,16 @@ export default function AboutPage() {
       {sections.map((section, index) =>
         <section key={index} className={styles.imageSection}>
           <div className={styles.imageWrapper}>
-            <img src={resolveFileUrl(section.src)} alt={section.alt} className={styles.fullWidthImage} />
+            <img 
+              src={resolveFileUrl(section.src)} 
+              alt={section.alt} 
+              className={styles.fullWidthImage}
+              width={1536}
+              height={1024}
+              loading={index === 0 ? "eager" : "lazy"}
+              fetchPriority={index === 0 ? "high" : "auto"}
+              decoding={index === 0 ? "auto" : "async"}
+            />
           </div>
           <Button asChild className={styles.ctaButton}>
             <Link to={section.link || "/shop"}>{section.label || t("about.order_now")}</Link>

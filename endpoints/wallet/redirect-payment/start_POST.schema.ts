@@ -1,16 +1,6 @@
 import { z } from "zod";
 import superjson from "superjson";
 
-export const paymentMethodSchema = z.enum([
-  "gpay", 
-  "apple_pay", 
-  "klarna", 
-  "klarna_sofort", 
-  "paypal", 
-  "credit_card",
-  "amazon_pay"
-]);
-
 export const schema = z.object({
   amount: z.union([
     z.literal(15),
@@ -20,19 +10,20 @@ export const schema = z.object({
     z.literal(200),
     z.literal(500),
   ]),
-  paymentMethod: paymentMethodSchema,
+  paymentMethod: z.enum(["klarna", "klarna_sofort", "amazon_pay"]),
 });
 
 export type OutputType = {
-  clientSecret: string;
   paymentIntentId: string;
+  redirectUrl: string;
+  status: string;
 };
 
-export const postCreatePaymentIntent = async (
+export const postStartRedirectTopup = async (
   input: z.infer<typeof schema>,
   init?: RequestInit
 ): Promise<OutputType> => {
-  const result = await fetch(`/_api/wallet/create-payment-intent`, {
+  const result = await fetch(`/_api/wallet/redirect-payment/start`, {
     method: "POST",
     body: superjson.stringify(input),
     ...init,

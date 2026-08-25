@@ -18,5 +18,10 @@
     "enabled": true,
     "schedule": "0 0 * * *",
     "timezone": "Europe/Berlin"
+  },
+  "reconcileTopups": {
+    "enabled": true,
+    "schedule": "*/15 * * * *",
+    "timezone": "Europe/Berlin"
   }
 }

@@ -33,13 +33,11 @@ export type Numeric = ColumnType<string, number | string, number | string>;
 
 export type OrderStatus = "cancelled" | "confirmed" | "delivered" | "delivering" | "pending";
 
-export type PaymentMethodType = "apple_pay" | "credit_card" | "gpay" | "klarna" | "paypal" | "points";
+export type PaymentMethodType = "amazon_pay" | "apple_pay" | "credit_card" | "gpay" | "klarna" | "paypal" | "points";
 
 export type PointTransactionType = "admin_adjustment" | "bibercode_credit" | "order_payment" | "topup";
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
-
-export type TopupHandoffStatus = "completed" | "expired" | "pending";
 
 export type UserRole = "admin" | "driver" | "user";
 
@@ -383,19 +381,6 @@ export interface Suppliers {
   updatedAt: Generated<Timestamp | null>;
 }
 
-export interface TopupHandoffTokens {
-  amount: Numeric;
-  completedAt: Timestamp | null;
-  createdAt: Generated<Timestamp>;
-  customerId: number;
-  expiresAt: Timestamp;
-  id: Generated<number>;
-  paymentIntentId: string | null;
-  pointsCredited: Numeric | null;
-  status: Generated<TopupHandoffStatus>;
-  token: string;
-}
-
 export interface UserNotifications {
   createdAt: Generated<Timestamp>;
   dismissed: Generated<boolean>;
@@ -514,7 +499,6 @@ export interface DB {
   sessions: Sessions;
   sonderbereichFiles: SonderbereichFiles;
   suppliers: Suppliers;
-  topupHandoffTokens: TopupHandoffTokens;
   userNotifications: UserNotifications;
   userPasswords: UserPasswords;
   users: Users;
@@ -528,10 +512,9 @@ export const UserRoleArrayValues: [UserRole, ...UserRole[]] = ["admin","driver",
 export const LanguagePreferenceArrayValues: [LanguagePreference, ...LanguagePreference[]] = ["de","en","es","it","tr"];
 export const NotificationPreferenceArrayValues: [NotificationPreference, ...NotificationPreference[]] = ["both","email","sms"];
 export const OrderStatusArrayValues: [OrderStatus, ...OrderStatus[]] = ["cancelled","confirmed","delivered","delivering","pending"];
-export const PaymentMethodTypeArrayValues: [PaymentMethodType, ...PaymentMethodType[]] = ["apple_pay","credit_card","gpay","klarna","paypal","points"];
+export const PaymentMethodTypeArrayValues: [PaymentMethodType, ...PaymentMethodType[]] = ["amazon_pay","apple_pay","credit_card","gpay","klarna","paypal","points"];
 export const PointTransactionTypeArrayValues: [PointTransactionType, ...PointTransactionType[]] = ["admin_adjustment","bibercode_credit","order_payment","topup"];
 export const CreditNoteStatusArrayValues: [CreditNoteStatus, ...CreditNoteStatus[]] = ["approved_auto","approved_manual","pending"];
-export const TopupHandoffStatusArrayValues: [TopupHandoffStatus, ...TopupHandoffStatus[]] = ["completed","expired","pending"];
 // Table/column names whose snake_case spelling kysely's default CamelCasePlugin
 // cannot recover from the camelCase name used in code (an underscore directly
 // before a digit, e.g. reminder_48h_sent ⇄ reminder48hSent). The db helper's

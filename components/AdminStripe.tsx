@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CreditCard, AlertCircle, CheckCircle, Plus, X, Save, Globe, AlertTriangle } from 'lucide-react';
+import { CreditCard, AlertCircle, CheckCircle, Plus, X, Save, AlertTriangle } from 'lucide-react';
 import { useStripeStatus, useStripeTopups } from '../helpers/useStripeAdmin';
 import { useSettings } from '../helpers/useShopApi';
 import { useSaveBonusTiersMutation } from '../helpers/useSaveBonusTiersMutation';
@@ -32,8 +32,6 @@ const percentFormatter = new Intl.NumberFormat('de-DE', {
 
 const PAYMENT_METHODS = [
   'Kreditkarte',
-  'Google Pay',
-  'Apple Pay',
   'Klarna',
   'Sofortüberweisung',
   'PayPal',
@@ -103,7 +101,7 @@ export const AdminStripe = () => {
           <AlertTriangle size={20} style={{ marginRight: 'var(--spacing-2)', flexShrink: 0 }} />
           <div>
             <strong>Warnung: Modi-Konflikt</strong><br />
-            Der Frontend-Publishable-Key läuft im {isFrontendTestMode ? 'Testmodus' : 'Live-Modus'}, während das Backend im {statusData?.livemode ? 'Live-Modus' : 'Testmodus'} läuft. Apple Pay und Google Pay können daher nicht funktionieren, da Zahlungsdomains modusspezifisch registriert werden.
+            Der Frontend-Publishable-Key läuft im {isFrontendTestMode ? 'Testmodus' : 'Live-Modus'}, während das Backend im {statusData?.livemode ? 'Live-Modus' : 'Testmodus'} läuft. In diesem Zustand können Zahlungen fehlschlagen.
           </div>
         </div>
       )}
@@ -167,53 +165,6 @@ export const AdminStripe = () => {
                 {method}
               </Badge>
             ))}
-          </div>
-          
-          {/* Payment Method Domains */}
-          <div className={styles.domainsWrapper}>
-            <h4 className={styles.subtitle}>Registrierte Zahlungsdomains</h4>
-            {isLoadingStatus ? (
-              <div className={styles.skeletonGroup}>
-                <Skeleton style={{ height: '2rem', width: '100%' }} />
-                <Skeleton style={{ height: '2rem', width: '100%' }} />
-              </div>
-            ) : statusData?.connected && statusData.paymentMethodDomains && statusData.paymentMethodDomains.length > 0 ? (
-              <div className={styles.domainList}>
-                {statusData.paymentMethodDomains.map((domain) => (
-                  <div key={domain.domainName} className={styles.domainItem}>
-                    <div className={styles.domainHeader}>
-                      <Globe size={16} style={{ marginRight: 'var(--spacing-2)', color: 'var(--muted-foreground)' }} />
-                      <span className={styles.domainName}>{domain.domainName}</span>
-                      {domain.enabled ? (
-                        <Badge variant="success">Aktiv</Badge>
-                      ) : (
-                        <Badge variant="outline">Inaktiv</Badge>
-                      )}
-                    </div>
-                    <div className={styles.domainStatusGrid}>
-                      <div className={styles.domainStatusRow}>
-                        <span className={styles.statusLabel}>Apple Pay:</span>
-                        <span className={domain.applePay === 'active' ? styles.statusActive : styles.statusUnknown}>
-                          {domain.applePay}
-                        </span>
-                      </div>
-                      <div className={styles.domainStatusRow}>
-                        <span className={styles.statusLabel}>Google Pay:</span>
-                        <span className={domain.googlePay === 'active' ? styles.statusActive : styles.statusUnknown}>
-                          {domain.googlePay}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className={styles.emptyStateBox}>
-                Keine Zahlungsdomain registriert. Apple Pay und Google Pay bleiben daher unsichtbar. 
-                Bitte fügen Sie <code className={styles.inlineCode}>biberfieber.floot.app</code> unter 
-                Stripe Dashboard &rarr; Einstellungen &rarr; Zahlungen &rarr; Payment method domains hinzu.
-              </div>
-            )}
           </div>
         </div>
       </div>
