@@ -2642,8 +2642,8 @@ packages:
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
-  picomatch@4.0.5:
-    resolution: {integrity: sha512-RvwwcruNjI1ncT5xRakeyS9Lf8lcItv34KD+aif+VH9kduAyfYBipGh12274xtenIPZ119/R9BdTBa8gAwSh0A==}
+  picomatch@4.0.6:
+    resolution: {integrity: sha512-bXCx4Swq84mgU01b/0qifY6DMxlxszBpLJ8z8elFD5gdpJ758VsAr8UzGvnDszOPHfV1p/292BOYv18XuDs+iA==}
     engines: {node: '>=12'}
 
   pkg-dir@5.0.0:
@@ -4342,7 +4342,7 @@ snapshots:
     dependencies:
       '@types/estree': 1.0.9
       estree-walker: 2.0.2
-      picomatch: 4.0.5
+      picomatch: 4.0.6
     optionalDependencies:
       rollup: 4.62.5
 
@@ -5230,9 +5230,9 @@ snapshots:
     dependencies:
       pend: 1.2.0
 
-  fdir@6.5.0(picomatch@4.0.5):
+  fdir@6.5.0(picomatch@4.0.6):
     optionalDependencies:
-      picomatch: 4.0.5
+      picomatch: 4.0.6
 
   find-up@5.0.0:
     dependencies:
@@ -5850,7 +5850,7 @@ snapshots:
 
   picocolors@1.1.1: {}
 
-  picomatch@4.0.5: {}
+  picomatch@4.0.6: {}
 
   pkg-dir@5.0.0:
     dependencies:
@@ -6496,8 +6496,8 @@ snapshots:
 
   tinyglobby@0.2.17:
     dependencies:
-      fdir: 6.5.0(picomatch@4.0.5)
-      picomatch: 4.0.5
+      fdir: 6.5.0(picomatch@4.0.6)
+      picomatch: 4.0.6
 
   to-buffer@1.2.2:
     dependencies:
@@ -6621,8 +6621,8 @@ snapshots:
   vite@6.4.3(@types/node@26.2.0)(terser@5.50.0):
     dependencies:
       esbuild: 0.25.12
-      fdir: 6.5.0(picomatch@4.0.5)
-      picomatch: 4.0.5
+      fdir: 6.5.0(picomatch@4.0.6)
+      picomatch: 4.0.6
       postcss: 8.5.26
       rollup: 4.62.5
       tinyglobby: 0.2.17

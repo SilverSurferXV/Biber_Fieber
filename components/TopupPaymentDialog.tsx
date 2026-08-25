@@ -15,10 +15,7 @@ import { WalletExpressCheckout } from './WalletExpressCheckout';
 import { TopupCardForm } from './TopupCardForm';
 import { isNativeApp } from '../helpers/isNativeApp';
 import { nativeStripeWallet } from '../helpers/nativeStripeWallet';
-import { useCreateTopupHandoff } from '../helpers/useTopupHandoff';
-import { getHandoffInfo } from '../endpoints/wallet/handoff/info_GET.schema';
-import { useQueryClient } from '@tanstack/react-query';
-import { AUTH_QUERY_KEY } from '../helpers/useAuth';
+import { NativeWalletButton } from './NativeWalletButton';
 import styles from './TopupPaymentDialog.module.css';
 
 const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
@@ -98,44 +95,6 @@ export const TopupPaymentDialog = ({
   const [nativeWalletAvailability, setNativeWalletAvailability] = useState<{ applePay: boolean; googlePay: boolean; pluginAvailable: boolean } | null>(null);
   const [isNativeWalletProcessing, setIsNativeWalletProcessing] = useState(false);
   const { mutateAsync: confirmTopup } = useConfirmTopup();
-
-  const queryClient = useQueryClient();
-  const { mutateAsync: createHandoff, isPending: isCreatingHandoff } = useCreateTopupHandoff();
-  const [handoffToken, setHandoffToken] = useState<string | null>(null);
-  const [isWaitingHandoff, setIsWaitingHandoff] = useState(false);
-  const [isCheckingHandoff, setIsCheckingHandoff] = useState(false);
-
-  const checkHandoffStatus = async () => {
-    if (!handoffToken) return;
-    setIsCheckingHandoff(true);
-    try {
-      const info = await queryClient.fetchQuery({
-        queryKey: ["topup-handoff", handoffToken],
-        queryFn: () => getHandoffInfo({ token: handoffToken }),
-      });
-      if (info.status === 'completed') {
-        toast.success(t("topup.success", { points: info.pointsCredited || 0 }));
-        queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
-        handleClose();
-      } else {
-        toast.info(t("topup.wallet_app_not_completed"));
-      }
-    } catch (err: any) {
-      toast.error(err.message || t("topup.wallet_app_failed"));
-    } finally {
-      setIsCheckingHandoff(false);
-    }
-  };
-
-  useEffect(() => {
-    const handleVisibility = () => {
-      if (document.visibilityState === 'visible' && isWaitingHandoff) {
-        checkHandoffStatus();
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => document.removeEventListener('visibilitychange', handleVisibility);
-  }, [isWaitingHandoff, handoffToken]);
 
   useEffect(() => {
     if (isNativeApp() && isOpen && nativeWalletAvailability === null) {
@@ -237,17 +196,6 @@ export const TopupPaymentDialog = ({
     }
   };
 
-  const handleNativeWalletClick = async () => {
-    try {
-      const res = await createHandoff({ amount: amount as any });
-      setHandoffToken(res.token);
-      window.open(res.url, "_blank");
-      setIsWaitingHandoff(true);
-    } catch (err: any) {
-      toast.error(err.message || t("topup.wallet_app_failed"));
-    }
-  };
-
   const handleClose = () => {
     setStep('select');
     setPaymentMethod('');
@@ -255,8 +203,6 @@ export const TopupPaymentDialog = ({
     setPaymentIntentId('');
     setWalletsAvailable(null);
     setIntentError(null);
-    setHandoffToken(null);
-    setIsWaitingHandoff(false);
     onClose();
   };
 
@@ -276,20 +222,7 @@ export const TopupPaymentDialog = ({
         
         {step === 'select' && (
           <>
-            {isWaitingHandoff ? (
-              <div className={styles.waitingContainer}>
-                <h4 className={styles.walletsTitle}>{t("topup.wallet_app_waiting_title")}</h4>
-                <p className={styles.walletAppHint}>{t("topup.wallet_app_waiting_text")}</p>
-                <div style={{ display: 'flex', gap: 'var(--spacing-2)' }}>
-                  <Button variant="outline" onClick={() => setIsWaitingHandoff(false)}>
-                    {t("topup.cancel")}
-                  </Button>
-                  <Button onClick={checkHandoffStatus} disabled={isCheckingHandoff}>
-                    {t("topup.wallet_app_check")}
-                  </Button>
-                </div>
-              </div>
-            ) : intentError ? (
+            {intentError ? (
               <div className={styles.errorContainer}>
                 <p className={styles.errorText}>{intentError}</p>
                 <Button variant="outline" onClick={handleRetryIntent}>
@@ -298,7 +231,7 @@ export const TopupPaymentDialog = ({
               </div>
             ) : (
               <>
-                {isNativeApp() && (
+                {isNativeApp() && (nativeWalletAvailability === null || nativeWalletAvailability.applePay || nativeWalletAvailability.googlePay) && (
                   <div className={styles.walletSection}>
                     {nativeWalletAvailability === null ? (
                       <>
@@ -307,33 +240,23 @@ export const TopupPaymentDialog = ({
                           <Skeleton className={styles.walletSkeleton} />
                         </div>
                       </>
-                    ) : nativeWalletAvailability.applePay || nativeWalletAvailability.googlePay ? (
+                    ) : (
                       <>
                         <h4 className={styles.walletsTitle}>{t("topup.wallet_native_title")}</h4>
                         {nativeWalletAvailability.applePay && (
-                          <Button 
+                          <NativeWalletButton 
+                            kind="apple_pay"
                             onClick={() => handleNativeWalletPay("apple_pay")} 
-                            disabled={isNativeWalletProcessing}
-                          >
-                            {isNativeWalletProcessing ? t("topup.wallet_native_processing") : t("topup.wallet_native_apple")}
-                          </Button>
+                            isProcessing={isNativeWalletProcessing}
+                          />
                         )}
                         {nativeWalletAvailability.googlePay && (
-                          <Button 
+                          <NativeWalletButton 
+                            kind="google_pay"
                             onClick={() => handleNativeWalletPay("google_pay")} 
-                            disabled={isNativeWalletProcessing}
-                          >
-                            {isNativeWalletProcessing ? t("topup.wallet_native_processing") : t("topup.wallet_native_google")}
-                          </Button>
+                            isProcessing={isNativeWalletProcessing}
+                          />
                         )}
-                      </>
-                    ) : (
-                      <>
-                        <h4 className={styles.walletsTitle}>{t("topup.wallet_app_title")}</h4>
-                        <Button onClick={handleNativeWalletClick} disabled={isCreatingHandoff}>
-                          {isCreatingHandoff ? t("topup.wallet_app_opening") : t("topup.wallet_app_button")}
-                        </Button>
-                        <p className={styles.walletAppHint}>{t("topup.wallet_app_hint")}</p>
                       </>
                     )}
                   </div>
@@ -368,7 +291,7 @@ export const TopupPaymentDialog = ({
                   </div>
                 )}
 
-                {(isNativeApp() || walletsAvailable === true) && (
+                {((isNativeApp() && (nativeWalletAvailability === null || nativeWalletAvailability.applePay || nativeWalletAvailability.googlePay)) || walletsAvailable === true) && (
                   <div className={styles.divider}>
                     <span className={styles.dividerText}>{t("topup.or_other")}</span>
                   </div>

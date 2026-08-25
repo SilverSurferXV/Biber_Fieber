@@ -1,1 +1,1 @@
-(no pending todos)
+- Handoff-Backend entfernen (Endpunkte wallet/handoff/*, pages/aufladen.$token, HandoffTopupCheckout, useTopupHandoff) — erst nachdem der neue native Build ausgerollt und verifiziert ist

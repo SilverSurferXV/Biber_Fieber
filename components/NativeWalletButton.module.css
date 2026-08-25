@@ -1,0 +1,69 @@
+.walletButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  background-color: #000000;
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0 var(--spacing-4);
+  cursor: pointer;
+  transition: transform var(--animation-duration-fast) ease, opacity var(--animation-duration-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.walletButton:focus-visible {
+  box-shadow: var(--shadow-focus);
+}
+
+.walletButton:active:not(.disabled) {
+  transform: scale(0.98);
+  background-color: #1a1a1a;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .walletButton {
+    transition: none;
+  }
+  .walletButton:active:not(.disabled) {
+    transform: none;
+  }
+}
+
+.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-1);
+}
+
+.appleLogo,
+.googleLogo {
+  height: 20px;
+  width: auto;
+  display: block;
+}
+
+.appleLogo {
+  margin-bottom: 2px;
+}
+
+.payText {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.spinner {
+  color: #ffffff;
+}

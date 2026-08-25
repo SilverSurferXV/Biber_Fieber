@@ -1,6 +1,7 @@
 import { STRIPE_PUBLISHABLE_KEY } from "./_publicConfigs";
 import { isNativeApp } from "./isNativeApp";
 import { getClientPlatform } from "./getClientPlatform";
+import { PUBLISHED_ORIGIN } from "./apiFetchGuard";
 
 // NOTE: This exact Apple Merchant ID must be created in the Apple Developer portal 
 // and selected in the Xcode Apple Pay capability.
@@ -25,9 +26,15 @@ let initializationPromise: Promise<void> | null = null;
 
 const reportDiagnostic = (data: any) => {
   try {
+    const Capacitor = typeof window !== 'undefined' ? (window as any).Capacitor : null;
+    const pluginNames = Capacitor?.Plugins ? Object.keys(Capacitor.Plugins) : [];
+
     const diagnostic = {
       message: "native wallet availability",
       ...data,
+      href: typeof window !== 'undefined' ? window.location.href : null,
+      origin: typeof window !== 'undefined' ? window.location.origin : null,
+      capacitorPlugins: pluginNames,
       context: {
         origin: typeof window !== 'undefined' ? window.location.origin : null,
         userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
@@ -35,7 +42,7 @@ const reportDiagnostic = (data: any) => {
       }
     };
     navigator.sendBeacon(
-      "/_api/diagnostics/client-error",
+      `${PUBLISHED_ORIGIN}/_api/diagnostics/client-error`,
       new Blob([JSON.stringify(diagnostic)], { type: "text/plain" })
     );
   } catch (e) {
@@ -103,7 +110,7 @@ export const nativeStripeWallet = {
     const hasStripePlugin = !!(Capacitor?.Plugins?.Stripe);
 
     if (!plugin) {
-      console.log("[nativeStripeWallet] Plugin not found in native build, browser handoff will be used.");
+      console.log("[nativeStripeWallet] Plugin not found in native build - native wallets will be hidden. The @capacitor-community/stripe plugin is missing from this binary.");
       reportDiagnostic({
         pluginAvailable: false,
         applePay: false,

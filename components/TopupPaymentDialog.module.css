@@ -136,20 +136,3 @@
   text-align: center;
   margin-top: var(--spacing-2);
 }
-
-.walletAppHint {
-  font-size: 0.875rem;
-  color: var(--muted-foreground);
-  margin: 0;
-  text-align: center;
-}
-
-.waitingContainer {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4);
-  margin-top: var(--spacing-4);
-  padding: var(--spacing-4);
-  text-align: center;
-  align-items: center;
-}
