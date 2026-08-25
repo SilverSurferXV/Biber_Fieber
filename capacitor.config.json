@@ -1,44 +1,14 @@
 {
   "appId": "com.silversurfer.biberfieber",
-  "appName": "Biber Fieber",
+  "appName": "Biber Fieber Bio‑Frühstück Lieferplattform",
   "webDir": "dist",
-  "server": {
-    "androidScheme": "https",
-    "iosScheme": "capacitor",
-    "cleartext": false
-  },
-  "ios": {
-    "contentInset": "always",
-    "limitsNavigationsToAppBoundDomains": false
-  },
-  "android": {
-    "allowMixedContent": false,
-    "captureInput": true,
-    "webContentsDebuggingEnabled": false
-  },
   "plugins": {
-    "CapacitorHttp": {
-      "enabled": true
-    },
     "CapacitorCookies": {
       "enabled": true
     },
-    "SplashScreen": {
-      "launchShowDuration": 1500,
-      "launchAutoHide": true,
-      "backgroundColor": "#ffffff",
-      "showSpinner": false,
-      "androidScaleType": "CENTER_CROP",
-      "splashFullScreen": true,
-      "splashImmersive": false
-    },
+    
     "StatusBar": {
-      "style": "DARK",
-      "backgroundColor": "#ffffff"
-    },
-    "Keyboard": {
-      "resize": "body",
-      "resizeOnFullScreen": true
+      "overlaysWebView": false
     }
   }
 }

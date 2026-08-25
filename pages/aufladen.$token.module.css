@@ -1,0 +1,146 @@
+.page {
+  min-height: 100vh;
+  background-color: var(--background);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-4);
+  font-family: var(--font-family-base);
+}
+
+.container {
+  width: 100%;
+  max-width: 480px;
+}
+
+.card {
+  background-color: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-6);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.title {
+  font-family: var(--font-family-display);
+  font-size: 2rem;
+  color: var(--primary);
+  margin: 0;
+}
+
+.subtitle {
+  color: var(--muted-foreground);
+  font-size: 0.9375rem;
+  margin: 0;
+}
+
+.summaryBox {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.greeting {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--foreground);
+  margin: 0 0 var(--spacing-2) 0;
+}
+
+.amountRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9375rem;
+}
+
+.label {
+  color: var(--muted-foreground);
+}
+
+.value {
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.bonusValue {
+  color: var(--success);
+  font-weight: 500;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--spacing-3);
+  margin-top: var(--spacing-2);
+  border-top: 1px dashed var(--border);
+}
+
+.totalLabel {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.totalValue {
+  font-family: var(--font-family-monospace);
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: var(--gradient-sunset);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.checkoutWrapper {
+  margin-top: var(--spacing-2);
+}
+
+.errorTitle {
+  font-family: var(--font-family-display);
+  font-size: 1.5rem;
+  color: var(--error);
+  margin: 0;
+  text-align: center;
+}
+
+.successTitle {
+  font-family: var(--font-family-display);
+  font-size: 1.75rem;
+  color: var(--success);
+  margin: 0;
+  text-align: center;
+}
+
+.text {
+  color: var(--foreground);
+  text-align: center;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.backButton {
+  margin-top: var(--spacing-4);
+  width: 100%;
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  text-align: center;
+  margin: 0;
+  margin-top: var(--spacing-2);
+}

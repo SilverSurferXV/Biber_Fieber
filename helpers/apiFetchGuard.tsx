@@ -29,6 +29,11 @@ export function installApiFetchGuard() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const win = window as any;
   
+  // Make installation strictly idempotent and non-nesting
+  if (win.__apiFetchGuardInstalled || (win.fetch && win.fetch.__isApiFetchGuard)) {
+    return;
+  }
+  
   if (!win.__apiFetchGuardOriginalFetch) {
     win.__apiFetchGuardOriginalFetch = window.fetch.bind(window);
   }
@@ -37,7 +42,7 @@ export function installApiFetchGuard() {
 
   const originalFetch = win.__apiFetchGuardOriginalFetch;
 
-  window.fetch = async function (input: RequestInfo | URL, init?: RequestInit) {
+  const patchedFetch = async function (input: RequestInfo | URL, init?: RequestInit) {
     let urlStr = "";
     let reqObj: Request | null = null;
 
@@ -91,41 +96,47 @@ export function installApiFetchGuard() {
     }
 
     try {
-      const response = await originalFetch(targetInput, targetInit);
+      let response = await originalFetch(targetInput, targetInit);
       const ct = response.headers.get("content-type") || "";
 
-      const isHtmlOrEmpty = ct.includes("text/html") || ct.trim() === "";
-      const isErrorNotJson = !response.ok && !ct.includes("json");
+      const isHtml = ct.includes("text/html");
+      const isEmptyAndError = !response.ok && ct.trim() === "";
 
-      // We suspect an issue if the endpoint returned HTML (e.g., a host routing error), empty content-type, or a non-JSON error
-      if (isHtmlOrEmpty || isErrorNotJson) {
+      // We suspect an issue if the endpoint returned HTML (e.g., a host routing error) or empty content-type on error
+      if (isHtml || isEmptyAndError) {
         if (response.bodyUsed) {
           return response;
         }
 
         let text = "";
         try {
-          const clone = response.clone();
-          text = (await clone.text()).trim().substring(0, 200);
+          // Read the body fully instead of cloning, to avoid double-consumption issues
+          text = await response.text();
+          // Construct a fresh Response so the caller still gets a readable body
+          response = new Response(text, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: response.headers,
+          });
         } catch (e) {
           console.warn("[apiFetchGuard] Failed to read response body for inspection:", e);
-          return response;
+          return response; // Return the original response untouched
         }
 
-        const isBrokenHtml = text.startsWith("<");
-        const isBrokenError = !response.ok && !text.startsWith("{") && !text.startsWith("[");
+        const snippet = text.trim().substring(0, 200);
+        const isBrokenHtml = text.trim().startsWith("<");
 
-        if (isBrokenHtml || isBrokenError) {
+        if (isBrokenHtml) {
           const diagnostic = {
             url: targetUrlStr,
             status: response.status,
             contentType: ct,
-            bodySnippet: text,
+            bodySnippet: snippet,
             href: window.location.href,
             origin: window.location.origin,
             platform: getClientPlatform(),
             userAgent: navigator.userAgent,
-            message: isBrokenHtml ? "HTML returned instead of JSON" : "Non-JSON error response",
+            message: "HTML returned instead of JSON",
           };
 
           console.error("[apiFetchGuard] API returned broken response:", diagnostic);
@@ -143,28 +154,31 @@ export function installApiFetchGuard() {
             const retryInit: RequestInit = { ...(init || {}), credentials: "include" as RequestCredentials };
 
             try {
-              const retryResponse = await originalFetch(retryInput, retryInit);
+              let retryResponse = await originalFetch(retryInput, retryInit);
               const retryCt = retryResponse.headers.get("content-type") || "";
-              const retryIsHtmlOrEmpty = retryCt.includes("text/html") || retryCt.trim() === "";
-              const retryIsErrorNotJson = !retryResponse.ok && !retryCt.includes("json");
+              const retryIsHtml = retryCt.includes("text/html");
+              const retryIsEmptyAndError = !retryResponse.ok && retryCt.trim() === "";
               let isRetryBroken = false;
 
-              if (retryIsHtmlOrEmpty || retryIsErrorNotJson) {
+              if (retryIsHtml || retryIsEmptyAndError) {
                 if (!retryResponse.bodyUsed) {
                   let retryText = "";
                   let retryInspectionFailed = false;
                   try {
-                    const retryClone = retryResponse.clone();
-                    retryText = (await retryClone.text()).trim().substring(0, 200);
+                    retryText = await retryResponse.text();
+                    retryResponse = new Response(retryText, {
+                      status: retryResponse.status,
+                      statusText: retryResponse.statusText,
+                      headers: retryResponse.headers,
+                    });
                   } catch (e) {
                     console.warn("[apiFetchGuard] Failed to read retry response body for inspection:", e);
                     retryInspectionFailed = true;
                   }
 
                   if (!retryInspectionFailed) {
-                    const retryIsBrokenHtml = retryText.startsWith("<");
-                    const retryIsBrokenError = !retryResponse.ok && !retryText.startsWith("{") && !retryText.startsWith("[");
-                    if (retryIsBrokenHtml || retryIsBrokenError) {
+                    const retryIsBrokenHtml = retryText.trim().startsWith("<");
+                    if (retryIsBrokenHtml) {
                       isRetryBroken = true;
                     }
                   }
@@ -216,4 +230,8 @@ export function installApiFetchGuard() {
       );
     }
   };
+
+  // Add the marker so we don't accidentally nest the guard
+  (patchedFetch as any).__isApiFetchGuard = true;
+  window.fetch = patchedFetch as typeof window.fetch;
 }

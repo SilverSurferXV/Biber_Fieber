@@ -72,5 +72,21 @@ export const cleanupOldData = async (): Promise<void> => {
     );
   }
 
+  // 5. Cleanup old topup handoff tokens (> 7 days)
+  try {
+    const result = await db
+      .deleteFrom("topupHandoffTokens")
+      .where("createdAt", "<", sevenDaysAgo)
+      .execute();
+      
+    const numDeleted = result.reduce((acc, r) => acc + Number(r.numDeletedRows || 0), 0);
+    console.log(`[Scheduled Job] Cleaned up ${numDeleted} old topup handoff tokens.`);
+  } catch (error) {
+    console.error(
+      "[Scheduled Job] Failed to clean up topup handoff tokens:", 
+      error instanceof Error ? error.message : "Unknown error"
+    );
+  }
+
   console.log("[Scheduled Job] cleanupOldData completed.");
 };

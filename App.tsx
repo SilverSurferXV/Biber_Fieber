@@ -23,6 +23,8 @@ import Page_9 from "./pages/sonderbereich.tsx";
 import PageLayout_9 from "./pages/sonderbereich.pageLayout.tsx";
 import Page_10 from "./pages/passwort-reset.tsx";
 import PageLayout_10 from "./pages/passwort-reset.pageLayout.tsx";
+import Page_11 from "./pages/aufladen.$token.tsx";
+import PageLayout_11 from "./pages/aufladen.$token.pageLayout.tsx";
 
 if (!window.requestIdleCallback) {
   window.requestIdleCallback = (cb) => {
@@ -32,7 +34,7 @@ if (!window.requestIdleCallback) {
 
 import "./base.css";
 
-const fileNameToRoute = new Map([["./pages/shop.tsx","/shop"],["./pages/about.tsx","/about"],["./pages/admin.tsx","/admin"],["./pages/login.tsx","/login"],["./pages/_index.tsx","/"],["./pages/fahrer.tsx","/fahrer"],["./pages/account.tsx","/account"],["./pages/checkout.tsx","/checkout"],["./pages/liefergebiet.tsx","/liefergebiet"],["./pages/sonderbereich.tsx","/sonderbereich"],["./pages/passwort-reset.tsx","/passwort-reset"]]);
+const fileNameToRoute = new Map([["./pages/shop.tsx","/shop"],["./pages/about.tsx","/about"],["./pages/admin.tsx","/admin"],["./pages/login.tsx","/login"],["./pages/_index.tsx","/"],["./pages/fahrer.tsx","/fahrer"],["./pages/account.tsx","/account"],["./pages/checkout.tsx","/checkout"],["./pages/liefergebiet.tsx","/liefergebiet"],["./pages/sonderbereich.tsx","/sonderbereich"],["./pages/passwort-reset.tsx","/passwort-reset"],["./pages/aufladen.$token.tsx","/aufladen/:token"]]);
 const fileNameToComponent = new Map([
     ["./pages/shop.tsx", Page_0],
 ["./pages/about.tsx", Page_1],
@@ -45,6 +47,7 @@ const fileNameToComponent = new Map([
 ["./pages/liefergebiet.tsx", Page_8],
 ["./pages/sonderbereich.tsx", Page_9],
 ["./pages/passwort-reset.tsx", Page_10],
+["./pages/aufladen.$token.tsx", Page_11],
   ]);
 
 function makePageRoute(filename: string) {
@@ -156,6 +159,7 @@ export function App() {
 "./pages/liefergebiet.tsx": PageLayout_8,
 "./pages/sonderbereich.tsx": PageLayout_9,
 "./pages/passwort-reset.tsx": PageLayout_10,
+"./pages/aufladen.$token.tsx": PageLayout_11,
 }), fileNameToRoute, makePageRoute })} 
           <Route path="*" element={<NotFound />} />
         </Routes>

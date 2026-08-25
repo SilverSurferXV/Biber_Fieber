@@ -61,3 +61,95 @@
   justify-content: flex-end;
   gap: var(--spacing-2);
 }
+
+.walletSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-4);
+}
+
+.walletsTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.walletSkeletonWrapper {
+  width: 100%;
+}
+
+.walletSkeleton {
+  width: 100%;
+  height: 48px;
+  border-radius: var(--radius);
+}
+
+.walletUnavailableHint {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin-top: var(--spacing-4);
+  text-align: center;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin-top: var(--spacing-6);
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid var(--border);
+}
+
+.dividerText {
+  padding: 0 var(--spacing-4);
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+  padding: var(--spacing-4);
+  text-align: center;
+}
+
+.errorText {
+  color: var(--error);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.processingText {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  text-align: center;
+  margin-top: var(--spacing-2);
+}
+
+.walletAppHint {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin: 0;
+  text-align: center;
+}
+
+.waitingContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+  padding: var(--spacing-4);
+  text-align: center;
+  align-items: center;
+}

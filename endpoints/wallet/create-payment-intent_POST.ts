@@ -43,16 +43,18 @@ export async function handle(request: Request) {
       paymentMethodTypes = ["paypal"];
     }
 
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: input.amount * 100, // Stripe expects amounts in cents for EUR
-      currency: "eur",
-      payment_method_types: paymentMethodTypes,
-      metadata: {
-        userId: user.id.toString(),
-        amount: input.amount.toString(),
-        paymentMethod: input.paymentMethod,
-      },
-    });
+     const paymentIntent = await stripe.paymentIntents.create({
+       amount: input.amount * 100, // Stripe expects amounts in cents for EUR
+       currency: "eur",
+      // For backward compatibility, we keep payment_method_types as is, but we add metadata
+       payment_method_types: paymentMethodTypes,
+       metadata: {
+         userId: user.id.toString(),
+         amount: input.amount.toString(),
+        acceptsWallets: paymentMethodTypes.includes("card") ? "true" : "false",
+         paymentMethod: input.paymentMethod,
+       },
+     });
 
     if (!paymentIntent.client_secret) {
       throw new Error("Failed to create payment intent: Missing client_secret");
